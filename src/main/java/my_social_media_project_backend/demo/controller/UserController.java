@@ -1,0 +1,79 @@
+package my_social_media_project_backend.demo.controller;
+
+import jakarta.activation.UnsupportedDataTypeException;
+import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
+import my_social_media_project_backend.demo.dto.UserDTO;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.service.PostService;
+import my_social_media_project_backend.demo.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("api/user")
+public class UserController {
+    private final UserService userService;
+    private final PostService postService;
+
+    public UserController(UserService userService, PostService postService) {
+        this.userService = userService;
+        this.postService = postService;
+    }
+
+    @GetMapping("/user/{id}")
+    public User getUserById(@PathVariable Integer id) {
+        return userService.getByIdOrNull(id);
+    }
+
+    @PostMapping("/profile/get")
+    public ResponseEntity<Map<String, Object>> get(
+            @RequestBody Map<String, Integer> requestBody
+    ) {
+        Integer userId = requestBody.get("userId");
+
+        if(userId == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "No user IDs provided"));
+        }
+
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDTO user = userService.getUserProfileById(userId);
+        List<PostWithUserIdDTO> posts = postService.getPostDTOsByUserId(0, 6, user.getId(), customUserDetails.getUserId());
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", user);
+        response.put("posts", posts);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/cover/update")
+    public ResponseEntity<Map<String, String>> updateCover(
+            @RequestParam("image") MultipartFile file
+        )
+    {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String coverPublicUrl = userService.updateCover(file);
+            response.put("coverPublicUrl", coverPublicUrl);
+            return ResponseEntity.ok().body(response);
+        } catch (UnsupportedDataTypeException e) {
+            response.put("error", "Invalid file type. Only PNG and JPEG are allowed.");
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(response);
+        } catch (IOException e) {
+            response.put("error", "Error saving file.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } catch (Exception e) {
+            response.put("error", "Unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+}
