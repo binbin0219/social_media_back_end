@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo.service;
 
+import my_social_media_project_backend.demo.dto.NotificationDTO;
 import my_social_media_project_backend.demo.entity.Notification;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.repository.NotificationRepository;
@@ -43,10 +44,22 @@ public class NotificationService {
         userStatisticService.incrementUnseenNotificationCount(recipient.getId());
     }
 
-    public List<Notification> getNotificationsByUserId(Integer userId, Integer offset, Integer recordPerPage) {
+    public void deleteNotification(Integer senderId, Integer recipientId, String type) {
+        notificationRepository.findBySenderIdAndRecipientIdAndType(senderId, recipientId, type)
+            .ifPresent(notification -> {
+                notificationRepository.delete(notification);
+                if (notification.isSeen()) {
+                    userStatisticService.decrementSeenNotificationCount(recipientId);
+                } else {
+                    userStatisticService.decrementUnseenNotificationCount(recipientId);
+                }
+            });
+    }
+
+    public List<NotificationDTO> getNotificationsByUserId(Integer recipientId, Integer offset, Integer recordPerPage) {
         int pageNumber = offset / recordPerPage;
-        Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by("DESC", "create_at"));
-        Page<Notification> notificationPage = notificationRepository.findAll(pageable);
+        Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        Page<NotificationDTO> notificationPage = notificationRepository.findAllByRecipientId(pageable, recipientId);
         return notificationPage.getContent();
     }
 }

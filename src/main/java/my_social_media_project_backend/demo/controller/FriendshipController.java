@@ -1,6 +1,9 @@
 package my_social_media_project_backend.demo.controller;
 
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.exception.CannotAcceptFriendRequestException;
+import my_social_media_project_backend.demo.exception.CannotSendFriendRequestException;
+import my_social_media_project_backend.demo.exception.CannotUnsendFriendRequestException;
 import my_social_media_project_backend.demo.service.FriendshipService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +35,98 @@ public class FriendshipController {
 
         try {
             friendshipService.sendFriendRequestByIds(userDetails.getUserId(), Integer.parseInt(friendId));
+        } catch (CannotSendFriendRequestException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.put("error", "Something went wrong");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
         response.put("message", "Friend request sent successfully");
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/request/unsend")
+    public ResponseEntity<Map<String, String>> unsendFriendRequest(
+            @RequestParam("friendId") String friendId
+    ) {
+        Map<String, String> response = new HashMap<>();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        try {
+            friendshipService.unsendFriendRequest(userDetails.getUserId(), Integer.parseInt(friendId));
+        } catch (CannotUnsendFriendRequestException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } catch (Exception e) {
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        response.put("message", "Friend request unsent successfully");
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/request/accept")
+    public ResponseEntity<Map<String, String>> acceptFriendRequest(
+            @RequestParam("friendId") String friendId
+    ) {
+        Map<String, String> response = new HashMap<>();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        try {
+            friendshipService.acceptFriendRequestByIds(Integer.parseInt(friendId), userDetails.getUserId());
+        } catch (CannotAcceptFriendRequestException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        response.put("message", "Friend request accepted successfully");
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/request/reject")
+    public ResponseEntity<Map<String, String>> rejectFriendRequest(
+            @RequestParam("friendId") String friendId
+    ) {
+        Map<String, String> response = new HashMap<>();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        try {
+            friendshipService.rejectFriendRequestByIds(Integer.parseInt(friendId), userDetails.getUserId());
+        } catch (CannotAcceptFriendRequestException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        response.put("message", "Friend request accepted successfully");
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/unfriend")
+    public ResponseEntity<Map<String, String>> unfriend(
+            @RequestParam("friendId") String friendId
+    ) {
+        Map<String, String> response = new HashMap<>();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        try {
+            friendshipService.unfriend(userDetails.getUserId(), Integer.parseInt(friendId));
+        } catch (Exception e) {
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        response.put("message", "Unfriended successfully");
         return ResponseEntity.ok().body(response);
     }
 }
