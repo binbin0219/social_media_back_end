@@ -34,7 +34,7 @@ public class FriendshipController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-            friendshipService.sendFriendRequestByIds(userDetails.getUserId(), Integer.parseInt(friendId));
+            friendshipService.sendFriendRequestByIds(userDetails.getUserId(), Long.parseLong(friendId));
         } catch (CannotSendFriendRequestException e) {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -55,7 +55,7 @@ public class FriendshipController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-            friendshipService.unsendFriendRequest(userDetails.getUserId(), Integer.parseInt(friendId));
+            friendshipService.unsendFriendRequest(userDetails.getUserId(), Long.parseLong(friendId));
         } catch (CannotUnsendFriendRequestException e) {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -76,7 +76,7 @@ public class FriendshipController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-            friendshipService.acceptFriendRequestByIds(Integer.parseInt(friendId), userDetails.getUserId());
+            friendshipService.acceptFriendRequestByIds(Long.parseLong(friendId), userDetails.getUserId());
         } catch (CannotAcceptFriendRequestException e) {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -98,7 +98,7 @@ public class FriendshipController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-            friendshipService.rejectFriendRequestByIds(Integer.parseInt(friendId), userDetails.getUserId());
+            friendshipService.rejectFriendRequestByIds(Long.parseLong(friendId), userDetails.getUserId());
         } catch (CannotAcceptFriendRequestException e) {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -120,7 +120,7 @@ public class FriendshipController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-            friendshipService.unfriend(userDetails.getUserId(), Integer.parseInt(friendId));
+            friendshipService.unfriend(userDetails.getUserId(), Long.parseLong(friendId));
         } catch (Exception e) {
             response.put("error", "Something went wrong");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

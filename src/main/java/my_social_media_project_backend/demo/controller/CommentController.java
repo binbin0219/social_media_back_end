@@ -30,16 +30,15 @@ public class CommentController {
 
     @GetMapping("/get")
     public ResponseEntity<Map<String, Object>> get(
-            @RequestParam(defaultValue = "0") Integer postId,
+            @RequestParam(defaultValue = "0") Long postId,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "0") Integer recordPerPage
     ) {
-        Page<Comment> postCommentPage = commentService.getPostCommentPage(postId, offset, recordPerPage);
-        List<PostCommentDTO> postCommentDTOS = postCommentPage.stream().map(commentService::convertToPostCommentDTO).toList();
-        boolean isAllFetched = recordPerPage > postCommentDTOS.size();
+        Page<PostCommentDTO> postCommentPage = commentService.getPostComments(postId, offset, recordPerPage);
+        boolean isAllFetched = recordPerPage > postCommentPage.getContent().size();
         Map<String, Object> response = new HashMap<>();
         response.put("isAllFetched", isAllFetched);
-        response.put("comments", postCommentDTOS);
+        response.put("comments", postCommentPage.getContent());
         return ResponseEntity.ok().body(response);
     }
 
@@ -47,7 +46,7 @@ public class CommentController {
     public ResponseEntity<Map<String, Object>> commentPost(
             @RequestBody Map<String, String> requestBody
     ) {
-        int postId = Integer.parseInt(requestBody.get("post_id"));
+        Long postId = Long.parseLong(requestBody.get("post_id"));
         String content = requestBody.get("content");
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

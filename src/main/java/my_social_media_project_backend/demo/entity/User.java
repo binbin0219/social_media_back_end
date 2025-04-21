@@ -3,7 +3,10 @@ package my_social_media_project_backend.demo.entity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
+import my_social_media_project_backend.demo.dto.PhoneNumberDTO;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,7 +18,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "account_name", unique = true, length = 50)
     private String accountName;
@@ -47,9 +50,9 @@ public class User {
     @Column(name = "region", length = 50)
     private String region;
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "phone_number", columnDefinition = "jsonb")
-    private JsonNode phoneNumber; // Store JSON as String
+    private PhoneNumberDTO phoneNumber;
 
     @Column(name = "avatar")
     private String avatar;
@@ -81,11 +84,11 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private UserStatistic userStatistic;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -169,11 +172,11 @@ public class User {
         this.region = region;
     }
 
-    public JsonNode getPhoneNumber() {
+    public PhoneNumberDTO getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(JsonNode phoneNumber) {
+    public void setPhoneNumber(PhoneNumberDTO phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

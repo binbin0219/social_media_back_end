@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByAccountName(String accountName);
 
     @Query("""
@@ -45,19 +45,19 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             (fs2.friend.id = u.id AND fs2.user.id = :currentUserId)
         WHERE u.id = :userId
     """)
-    UserDTO getUserProfileById(@Param("userId") Integer userId, @Param("currentUserId") Integer currentUserId);
+    UserDTO getUserProfileById(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId);
 
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.UserDTO(
             u.id,
-            null,
+            u.country,
             u.username,
             u.firstName,
             u.lastName,
-            null,
-            null,
-            null,
-            null,
+            u.occupation,
+            CAST(u.phoneNumber AS string),
+            u.region,
+            u.relationshipStatus,
             u.gender,
             u.avatar,
             null,
@@ -70,5 +70,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
         LEFT JOIN UserStatistic us ON us.userId = :userId
         WHERE u.id = :userId
     """)
-    Optional<UserDTO> getCurrentUserById(@Param("userId") Integer userId);
+    Optional<UserDTO> getCurrentUserById(@Param("userId") Long userId);
 }

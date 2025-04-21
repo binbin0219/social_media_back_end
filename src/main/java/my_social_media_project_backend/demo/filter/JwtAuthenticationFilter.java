@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/test")) {
             System.out.println("Skipping filter for: " + path);
             CustomUserDetails userDetails = new CustomUserDetails(
-                    1,
+                    1L,
                     "Anonymous",
                     "Anonymous",
                     Collections.emptyList()
@@ -69,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        Integer userId = jwtUtils.getUserIdFromToken(token);
+        Long userId = jwtUtils.getUserIdFromToken(token);
         User userData = userService.getByIdOrNull(userId);
         if(userData == null) {
             Cookie cookie = cookieUtils.createCookie("", 0);

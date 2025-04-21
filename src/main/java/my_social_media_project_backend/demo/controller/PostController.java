@@ -3,7 +3,6 @@ package my_social_media_project_backend.demo.controller;
 import jakarta.validation.Valid;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.PostCreateDTO;
-import my_social_media_project_backend.demo.dto.PostDTO;
 import my_social_media_project_backend.demo.dto.PostWithUserDTO;
 import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
 import my_social_media_project_backend.demo.entity.Post;
@@ -52,7 +51,7 @@ public class PostController {
 
     @GetMapping("/get/{userId}")
     public ResponseEntity<List<PostWithUserIdDTO>> getPostByUserId(
-            @PathVariable Integer userId,
+            @PathVariable Long userId,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "10") Integer recordPerPage) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -65,7 +64,7 @@ public class PostController {
             @RequestBody Map<String, Object> requestBody
     ) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        int postId = Integer.parseInt(requestBody.get("postId").toString());
+        Long postId = Long.parseLong(requestBody.get("postId").toString());
         Post post = postService.getPostByIdOrFail(postId);
         if(!Objects.equals(post.getUser().getId(), userDetails.getUserId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not able to edit this post");
@@ -85,10 +84,10 @@ public class PostController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Object> delete(
-            @RequestParam Integer postId
+            @RequestParam Long postId
     ) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Integer postUserId = postService.getPostUserId(postId);
+        Long postUserId = postService.getPostUserId(postId);
         if(postUserId == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
         }

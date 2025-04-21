@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class UserDTO <T> {
-    private final Integer id;
+    private final Long id;
     private final String country;
     private final String username;
     private final String firstName;
@@ -26,7 +26,7 @@ public class UserDTO <T> {
     private final LocalDateTime createAt;
 
     public UserDTO(
-            Integer id,
+            Long id,
             String country,
             String username,
             String firstName,
@@ -68,7 +68,7 @@ public class UserDTO <T> {
         }
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

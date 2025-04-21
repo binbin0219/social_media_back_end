@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PostLikeRepository extends JpaRepository<PostLike, Integer> {
+public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     public Optional<PostLike> findByPostAndUser(Post post, User user);
 }

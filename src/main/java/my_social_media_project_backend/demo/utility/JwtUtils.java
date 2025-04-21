@@ -13,7 +13,7 @@ public class JwtUtils {
 
     private final String secretKey = "GnUNKdLndJ/GQRNL8w6gGPOUfuq42pCnEtfevWO/cxky7TU+bHBri5dqg6q3Pc8G1q3JXk5Kb65cfvoYhGrRYw==";
 
-    public String createToken(Integer userId) {
+    public String createToken(Long userId) {
         final long validityInMilliseconds = 36000000; // 1 hour
         Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
         Date now = new Date();
@@ -35,11 +35,11 @@ public class JwtUtils {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
     }
 
-    public Integer getUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         byte[] keyBytes = secretKey.getBytes();
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         String UserIdInString = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-        return Integer.valueOf(UserIdInString);
+        return Long.parseLong(UserIdInString);
     }
 
     public boolean isTokenValid(String token) {

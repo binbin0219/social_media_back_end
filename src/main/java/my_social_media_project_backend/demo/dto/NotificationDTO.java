@@ -1,21 +1,24 @@
 package my_social_media_project_backend.demo.dto;
 
+import my_social_media_project_backend.demo.entity.Notification;
+
 import java.time.LocalDateTime;
 
 public class NotificationDTO {
-    private long id;
-    private Integer recipientId;
-    private Integer senderId;
+    private Long id;
+    private Long recipientId;
+    private Long senderId;
     private String senderAvatar;
     private String senderFirstName;
     private String senderLastName;
-    private String type;
+    private Notification.Type type;
     private String content;
     private String link;
     private boolean seen;
+    private Long targetId;
     private LocalDateTime createAt;
 
-    public NotificationDTO(long id, Integer recipientId, Integer senderId, String senderAvatar, String senderFirstName, String senderLastName, String type, String content, String link, boolean seen, LocalDateTime createAt) {
+    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderAvatar, String senderFirstName, String senderLastName, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createAt) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
@@ -26,38 +29,39 @@ public class NotificationDTO {
         this.content = content;
         this.link = link;
         this.seen = seen;
+        this.targetId = targetId;
         this.createAt = createAt;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getRecipientId() {
+    public Long getRecipientId() {
         return recipientId;
     }
 
-    public void setRecipientId(Integer recipientId) {
+    public void setRecipientId(Long recipientId) {
         this.recipientId = recipientId;
     }
 
-    public Integer getSenderId() {
+    public Long getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(Integer senderId) {
+    public void setSenderId(Long senderId) {
         this.senderId = senderId;
     }
 
-    public String getType() {
+    public Notification.Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Notification.Type type) {
         this.type = type;
     }
 
@@ -115,5 +119,13 @@ public class NotificationDTO {
 
     public void setSenderLastName(String senderLastName) {
         this.senderLastName = senderLastName;
+    }
+
+    public Long getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(Long targetId) {
+        this.targetId = targetId;
     }
 }

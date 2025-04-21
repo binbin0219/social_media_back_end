@@ -5,19 +5,19 @@ import my_social_media_project_backend.demo.service.UserService;
 import java.time.LocalDateTime;
 
 public class PostCommentDTO {
-    private final Integer id;
+    private final Long id;
     private final String content;
-    private final UserDTO user;
+    private final PostCommentUserDTO user;
     private final LocalDateTime createAt;
 
-    public PostCommentDTO(Integer id, String content, UserDTO user, LocalDateTime createAt) {
+    public PostCommentDTO(Long id, String content, PostCommentUserDTO user, LocalDateTime createAt) {
         this.id = id;
         this.content = content;
         this.user = user;
         this.createAt = createAt;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
@@ -25,7 +25,7 @@ public class PostCommentDTO {
         return content;
     }
 
-    public UserDTO getUser() {
+    public PostCommentUserDTO getUser() {
         return user;
     }
 

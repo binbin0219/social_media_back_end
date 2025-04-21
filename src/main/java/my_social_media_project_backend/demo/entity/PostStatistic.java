@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "post_statistics")
 public class PostStatistic {
     @Id
-    private Integer postId;
+    private Long postId;
 
     @OneToOne(optional = false)
     @MapsId
@@ -14,10 +14,10 @@ public class PostStatistic {
     private Post post;
 
     @Column(name = "like_count" , nullable = false)
-    private long likeCount = 0;
+    private Long likeCount = 0L;
 
     @Column(name = "comment_count" , nullable = false)
-    private long commentCount = 0;
+    private Long commentCount = 0L;
 
     public PostStatistic() {}
 
@@ -25,11 +25,11 @@ public class PostStatistic {
         this.post = post;
     }
 
-    public Integer getPostId() {
+    public Long getPostId() {
         return postId;
     }
 
-    public void setPostId(Integer postId) {
+    public void setPostId(Long postId) {
         this.postId = postId;
     }
 
@@ -41,19 +41,19 @@ public class PostStatistic {
         this.post = post;
     }
 
-    public long getLikeCount() {
+    public Long getLikeCount() {
         return likeCount;
     }
 
-    public void setLikeCount(long likeCount) {
+    public void setLikeCount(Long likeCount) {
         this.likeCount = likeCount;
     }
 
-    public long getCommentCount() {
+    public Long getCommentCount() {
         return commentCount;
     }
 
-    public void setCommentCount(long commentCount) {
+    public void setCommentCount(Long commentCount) {
         this.commentCount = commentCount;
     }
 }

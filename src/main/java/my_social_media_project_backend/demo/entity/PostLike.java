@@ -12,7 +12,7 @@ public class PostLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -24,16 +24,16 @@ public class PostLike {
     private User user;
 
     @Column(name = "user_id", insertable = false, updatable = false)
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "create_at")
     private LocalDateTime create_at = LocalDateTime.now();
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -61,11 +61,11 @@ public class PostLike {
         this.create_at = create_at;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 }

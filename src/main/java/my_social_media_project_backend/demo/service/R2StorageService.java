@@ -55,4 +55,8 @@ public class R2StorageService {
         if (filePath.endsWith(".svg")) return "image/svg+xml";
         return "application/octet-stream";
     }
+
+    public String generateUserAvatarPath(Long userId) {
+        return String.format("user/%d/avatar/avatar.png", userId);
+    }
 }

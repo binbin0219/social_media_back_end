@@ -26,12 +26,22 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                 n.content,
                 n.link,
                 n.seen,
+                n.targetId,
                 n.createAt
             )
             FROM Notification n
             WHERE n.recipientId = :recipientId
     """)
-    Page<NotificationDTO> findAllByRecipientId(Pageable pageable, @Param("recipientId") Integer recipientId);
+    Page<NotificationDTO> findAllByRecipientId(Pageable pageable, @Param("recipientId") Long recipientId);
 
-    Optional<Notification> findBySenderIdAndRecipientIdAndType(Integer senderId, Integer recipientId, String type);
+    Optional<Notification> findBySenderIdAndRecipientIdAndType(Long senderId, Long recipientId, Notification.Type type);
+
+    @Query("SELECT n FROM Notification n WHERE n.senderId = :senderId AND n.recipientId = :recipientId AND n.targetId = :targetId AND n.type = :type")
+    Optional<Notification> findByTargetIdAndType(
+            Long senderId,
+            Long recipientId,
+            Long targetId,
+            Notification.Type type
+    );
+
 }

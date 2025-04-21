@@ -1,13 +1,14 @@
 package my_social_media_project_backend.demo.service;
+import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.UserDTO;
+import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
 import my_social_media_project_backend.demo.dto.UserSignupDTO;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.exception.AccountNameExistedException;
 import my_social_media_project_backend.demo.exception.UserNotFoundException;
 import my_social_media_project_backend.demo.repository.UserRepository;
 import my_social_media_project_backend.demo.utility.PasswordUtil;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,7 @@ import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
+import java.util.Date;
 import java.util.Objects;
 
 @Service
@@ -37,11 +38,11 @@ public class UserService {
         return getUserByAccountName(accountName);
     }
 
-    public User getByIdOrNull(Integer id) {
+    public User getByIdOrNull(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User getByIdOrFails(Integer id) {
+    public User getByIdOrFails(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
@@ -49,7 +50,7 @@ public class UserService {
         return userRepository.findByAccountName(accountName).orElse(null);
     }
 
-    public UserDTO getUserProfileById(Integer userId) {
+    public UserDTO getUserProfileById(Long userId) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.getUserProfileById(userId, userDetails.getUserId());
     }
@@ -80,7 +81,7 @@ public class UserService {
         return avatarUrlFromDb;
     }
 
-    public UserDTO getCurrentUserById(Integer id) {
+    public UserDTO getCurrentUserById(Long id) {
         return userRepository.getCurrentUserById(id).orElse(null);
     }
 
@@ -108,6 +109,31 @@ public class UserService {
         user.setCoverUrl(coverPublicUrl);
         userRepository.save(user);
         return coverPublicUrl;
+    }
+
+    public void updateUserDetails(Long userId, UserProfileUpdateDTO dto)
+        throws EntityNotFoundException
+    {
+        User user = userRepository.findById(userId).orElse(null);
+        if(user == null) {
+            throw new EntityNotFoundException("Failed to update user profile: user not found");
+        }
+
+        if (dto.getAvatar() != null) {
+            String avatarUrl = avatarService.updateUserAvatar(userId, dto.getAvatar());
+            long timestamp = System.currentTimeMillis();
+            user.setAvatar(avatarUrl + "?v=" + timestamp);
+        }
+        if (dto.getUsername() != null) user.setUsername(dto.getUsername());
+        if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
+        if (dto.getLastName() != null) user.setLastName(dto.getLastName());
+        if (dto.getGender() != null) user.setGender(dto.getGender());
+        if (dto.getPhoneNumber() != null) user.setPhoneNumber(dto.getPhoneNumber());
+        if (dto.getCountry() != null) user.setCountry(dto.getCountry());
+        if (dto.getRegion() != null) user.setRegion(dto.getRegion());
+        if (dto.getOccupation() != null) user.setOccupation(dto.getOccupation());
+        if (dto.getRelationshipStatus() != null) user.setRelationshipStatus(dto.getRelationshipStatus());
+        userRepository.save(user);
     }
 
     public UserDTO mapToUserDTO(User user) {

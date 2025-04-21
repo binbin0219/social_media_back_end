@@ -8,28 +8,28 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserStatisticRepository extends JpaRepository<UserStatistic, Integer> {
+public interface UserStatisticRepository extends JpaRepository<UserStatistic, Long> {
     @Modifying
     @Query("UPDATE UserStatistic us SET us.friendCount = us.friendCount + 1 WHERE us.userId = :userId")
-    void incrementFriendCount(@Param("userId") Integer userId);
+    void incrementFriendCount(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE UserStatistic us SET us.unseenNotificationCount = us.unseenNotificationCount + 1 WHERE us.userId = :userId")
-    void incrementUnseenNotificationCount(@Param("userId") Integer userId);
+    void incrementUnseenNotificationCount(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE UserStatistic us SET us.seenNotificationCount = us.seenNotificationCount + 1 WHERE us.userId = :userId")
-    void incrementSeenNotificationCount(@Param("userId") Integer userId);
+    void incrementSeenNotificationCount(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE UserStatistic us SET us.friendCount = us.friendCount - 1 WHERE us.userId = :userId")
-    void decrementFriendCount(@Param("userId") Integer userId);
+    void decrementFriendCount(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE UserStatistic us SET us.unseenNotificationCount = us.unseenNotificationCount - 1 WHERE us.userId = :userId")
-    void decrementUnseenNotificationCount(@Param("userId") Integer userId);
+    void decrementUnseenNotificationCount(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE UserStatistic us SET us.seenNotificationCount = us.seenNotificationCount - 1 WHERE us.userId = :userId")
-    void decrementSeenNotificationCount(@Param("userId") Integer userId);
+    void decrementSeenNotificationCount(@Param("userId") Long userId);
 }

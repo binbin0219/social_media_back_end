@@ -6,20 +6,20 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostStatisticsRepository extends JpaRepository<PostStatistic, Integer> {
+public interface PostStatisticsRepository extends JpaRepository<PostStatistic, Long> {
     @Modifying
     @Query("UPDATE PostStatistic ps SET ps.likeCount = ps.likeCount + 1 WHERE ps.post.id = :postId")
-    void incrementLikeCount(@Param("postId") Integer postId);
+    void incrementLikeCount(@Param("postId") Long postId);
 
     @Modifying
     @Query("UPDATE PostStatistic ps SET ps.commentCount = ps.commentCount + 1 WHERE ps.post.id = :postId")
-    void incrementCommentCount(@Param("postId") Integer postId);
+    void incrementCommentCount(@Param("postId") Long postId);
 
     @Modifying
     @Query("UPDATE PostStatistic ps SET ps.likeCount = ps.likeCount - 1 WHERE ps.post.id = :postId")
-    void decrementLikeCount(@Param("postId") Integer postId);
+    void decrementLikeCount(@Param("postId") Long postId);
 
     @Modifying
     @Query("UPDATE PostStatistic ps SET ps.commentCount = ps.commentCount - 1 WHERE ps.post.id = :postId")
-    void decrementCommentCount(@Param("postId") Integer postId);
+    void decrementCommentCount(@Param("postId") Long postId);
 }

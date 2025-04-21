@@ -1,13 +1,16 @@
 package my_social_media_project_backend.demo.controller;
 
 import jakarta.activation.UnsupportedDataTypeException;
+import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.PostDTO;
 import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
+import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
 import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.exception.ValidationException;
 import my_social_media_project_backend.demo.service.PostService;
 import my_social_media_project_backend.demo.service.UserService;
+import my_social_media_project_backend.demo.validator.UserValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,22 +27,24 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final PostService postService;
+    private final UserValidator userValidator;
 
-    public UserController(UserService userService, PostService postService) {
+    public UserController(UserService userService, PostService postService, UserValidator userValidator) {
         this.userService = userService;
         this.postService = postService;
+        this.userValidator = userValidator;
     }
 
     @GetMapping("/user/{id}")
-    public User getUserById(@PathVariable Integer id) {
+    public User getUserById(@PathVariable Long id) {
         return userService.getByIdOrNull(id);
     }
 
     @PostMapping("/profile/get")
     public ResponseEntity<Map<String, Object>> get(
-            @RequestBody Map<String, Integer> requestBody
+            @RequestBody Map<String, Long> requestBody
     ) {
-        Integer userId = requestBody.get("userId");
+        Long userId = requestBody.get("userId");
 
         if(userId == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "No user IDs provided"));
@@ -74,6 +79,32 @@ public class UserController {
         } catch (Exception e) {
             response.put("error", "Unexpected error occurred.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/profile/update")
+    public ResponseEntity<Object> updateProfile(@RequestBody UserProfileUpdateDTO dto)
+    {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (dto.getAvatar() != null) userValidator.validateAvatar(dto.getAvatar());
+            if (dto.getUsername() != null) userValidator.validateUsername(dto.getUsername());
+            if (dto.getFirstName() != null) userValidator.validateFirstName(dto.getFirstName());
+            if (dto.getLastName() != null) userValidator.validateLastName(dto.getLastName());
+            if (dto.getGender() != null) userValidator.validateGender(dto.getGender());
+            if (dto.getPhoneNumber() != null) userValidator.validatePhoneNumber(dto.getPhoneNumber().getFullNumber());
+            userValidator.validateCountry(dto.getCountry());
+            userValidator.validateRegion(dto.getRegion());
+            userValidator.validateOccupation(dto.getOccupation());
+            userValidator.validateRelationshipStatus(dto.getRelationshipStatus());
+            userService.updateUserDetails(currentUser.getUserId(), dto);
+            response.put("message", "User profile updated successfully");
+            return ResponseEntity.ok().body(response);
+        } catch (ValidationException | EntityNotFoundException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(response);
         }
     }
 }

@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostDTO {
-    private final Integer id;
+    private final Long id;
     private final String title;
     private final String content;
     private final List<PostCommentDTO> comments = new ArrayList<>();
-    private final long likeCount;
-    private final long commentCount;
+    private final Long likeCount;
+    private final Long commentCount;
     private final boolean isLiked;
     private final LocalDateTime create_at;
 
-    public PostDTO(Integer id, String title, String content, long likeCount, long commentCount, boolean isLiked, LocalDateTime create_at) {
+    public PostDTO(Long id, String title, String content, Long likeCount, Long commentCount, boolean isLiked, LocalDateTime create_at) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -24,7 +24,7 @@ public class PostDTO {
         this.create_at = create_at;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
@@ -36,7 +36,7 @@ public class PostDTO {
         return content;
     }
 
-    public long getLikeCount() {
+    public Long getLikeCount() {
         return likeCount;
     }
 
@@ -44,7 +44,7 @@ public class PostDTO {
         return comments;
     }
 
-    public long getCommentCount() {
+    public Long getCommentCount() {
         return commentCount;
     }
 

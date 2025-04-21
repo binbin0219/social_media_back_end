@@ -48,28 +48,28 @@ public class PostService {
         );
     }
 
-    public Post getPostByIdOrFail(Integer postId) {
+    public Post getPostByIdOrFail(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found, provided post id : " + postId));
     }
 
-    public Integer getPostUserId(Integer postId) {
+    public Long getPostUserId(Long postId) {
         return postRepository.getPostUserId(postId);
     }
 
-    public List<Object[]> getPostAndUserByIdOrFail(Integer postId, Integer userId) {
+    public List<Object[]> getPostAndUserByIdOrFail(Long postId, Long userId) {
         return postRepository.getPostAndUserById(postId, userId)
                 .filter(list -> !list.isEmpty())
                 .orElseThrow(() -> new EntityNotFoundException("Post or User not found"));
     }
 
-    public List<PostWithUserIdDTO> getPostDTOsByUserId(Integer offset, Integer recordPerPage, Integer userId, Integer currentUserId) {
+    public List<PostWithUserIdDTO> getPostDTOsByUserId(Integer offset, Integer recordPerPage, Long userId, Long currentUserId) {
         int pageNumber = offset / recordPerPage;
         PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
         Page<PostWithUserIdDTO> postPage = postRepository.getPostDTOByUserId(userId, currentUserId, pageable);
         return postPage.getContent();
     }
 
-    public List<PostWithUserDTO> getPostWithUserDTOs(Integer offset, Integer recordPerPage, Integer userId) {
+    public List<PostWithUserDTO> getPostWithUserDTOs(Integer offset, Integer recordPerPage, Long userId) {
         int pageNumber = offset / recordPerPage;
         PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
         Page<PostWithUserDTO> postPage = postRepository.getPostWithUserDTO(userId, pageable);
@@ -89,7 +89,7 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public void delete(Integer postId) {
+    public void delete(Long postId) {
         postRepository.deleteById(postId);
     }
 }

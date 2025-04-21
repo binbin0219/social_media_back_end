@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo.repository;
 
+import my_social_media_project_backend.demo.dto.PostCommentDTO;
 import my_social_media_project_backend.demo.dto.PostDTO;
 import my_social_media_project_backend.demo.dto.PostWithUserDTO;
 import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
@@ -15,9 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Integer> {
+public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p , u FROM Post p , User u WHERE p.id = :postId AND u.id = :userId")
-    Optional<List<Object[]>> getPostAndUserById(@Param("postId") Integer postId, @Param("userId") Integer userId);
+    Optional<List<Object[]>> getPostAndUserById(@Param("postId") Long postId, @Param("userId") Long userId);
 
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.PostWithUserIdDTO(
@@ -34,7 +35,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
         WHERE p.user.id = :userId
         GROUP BY p.id, p.title, p.content, p.createAt, ps.likeCount, ps.commentCount
     """)
-    Page<PostWithUserIdDTO> getPostDTOByUserId(@Param("userId") Integer userId, @Param("currentUserId") Integer currentUserId, Pageable pageable);
+    Page<PostWithUserIdDTO> getPostDTOByUserId(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId, Pageable pageable);
 
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.PostWithUserDTO(
@@ -70,13 +71,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
         LEFT JOIN PostLike pl ON p.id = pl.post.id AND pl.user.id = :userId
         GROUP BY p.id, ps.likeCount, ps.commentCount, p.createAt, p.user
     """)
-    Page<PostWithUserDTO> getPostWithUserDTO(@Param("userId") Integer userId, Pageable pageable);
+    Page<PostWithUserDTO> getPostWithUserDTO(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.post.id = :postId")
-    long countCommentsById(@Param("postId") Integer postId);
+    long countCommentsById(@Param("postId") Long postId);
 
     @Query("SELECT p.user.id FROM Post p WHERE p.id = :postId")
-    Integer getPostUserId(int postId);
+    Long getPostUserId(Long postId);
 
-    Page<Post> findByUserId(Integer userId, Pageable pageable);
+    Page<Post> findByUserId(Long userId, Pageable pageable);
 }

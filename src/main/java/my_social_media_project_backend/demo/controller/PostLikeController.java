@@ -29,7 +29,7 @@ public class PostLikeController {
     public ResponseEntity<Map<String, String>> likePost(
             @RequestBody Map<String, String> requestBody
     ) {
-        int postId = Integer.parseInt(requestBody.get("post_id"));
+        Long postId = Long.parseLong(requestBody.get("post_id"));
         String action = requestBody.get("action").toLowerCase();
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Object[]> result = postService.getPostAndUserByIdOrFail(postId, userDetails.getUserId());

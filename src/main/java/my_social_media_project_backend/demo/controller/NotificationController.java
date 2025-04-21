@@ -4,17 +4,14 @@ import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.NotificationDTO;
 import my_social_media_project_backend.demo.entity.Notification;
 import my_social_media_project_backend.demo.service.NotificationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notification")
@@ -37,6 +34,24 @@ public class NotificationController {
         List<NotificationDTO> seenNotifications = notifications.stream().filter(NotificationDTO::isSeen).toList();
         response.put("unseenNotifications", unseenNotifications);
         response.put("seenNotifications", seenNotifications);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteNotification(
+            @RequestBody Map<String, Long> requestBody
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        Long notificationId = requestBody.get("notificationId");
+
+        try{
+            notificationService.deleteById(notificationId);
+        } catch (Exception e) {
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        response.put("message", "Notification deleted successfully");
         return ResponseEntity.ok().body(response);
     }
 }

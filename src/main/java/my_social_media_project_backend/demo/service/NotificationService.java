@@ -22,18 +22,19 @@ public class NotificationService {
         this.userStatisticService = userStatisticService;
     }
 
-    public void sendNotificationByIds(Integer senderId, Integer recipientId, String type, String content, String link) {
+    public void sendNotificationByIds(Long senderId, Long recipientId, Notification.Type type, String content, String link, Long targetId) {
         Notification notification = new Notification();
         notification.setSenderId(senderId);
         notification.setRecipientId(recipientId);
         notification.setType(type);
         notification.setContent(content);
         notification.setLink(link);
+        notification.setTargetId(targetId);
         notificationRepository.save(notification);
         userStatisticService.incrementUnseenNotificationCount(recipientId);
     }
 
-    public void sendNotification(User sender, User recipient, String type, String content, String link) {
+    public void sendNotification(User sender, User recipient, Notification.Type type, String content, String link) {
         Notification notification = new Notification();
         notification.setSender(sender);
         notification.setRecipient(recipient);
@@ -44,8 +45,20 @@ public class NotificationService {
         userStatisticService.incrementUnseenNotificationCount(recipient.getId());
     }
 
-    public void deleteNotification(Integer senderId, Integer recipientId, String type) {
-        notificationRepository.findBySenderIdAndRecipientIdAndType(senderId, recipientId, type)
+    public void deleteById(Long notificationId) {
+        notificationRepository.findById(notificationId)
+            .ifPresent(notification -> {
+                notificationRepository.delete(notification);
+                if (notification.isSeen()) {
+                    userStatisticService.decrementSeenNotificationCount(notification.getRecipientId());
+                } else {
+                    userStatisticService.decrementUnseenNotificationCount(notification.getRecipientId());
+                }
+            });
+    }
+
+    public void deleteByTargetIdAndType(Long senderId, Long recipientId, Long targetId, Notification.Type type) {
+        notificationRepository.findByTargetIdAndType(senderId, recipientId, targetId, type)
             .ifPresent(notification -> {
                 notificationRepository.delete(notification);
                 if (notification.isSeen()) {
@@ -56,7 +69,19 @@ public class NotificationService {
             });
     }
 
-    public List<NotificationDTO> getNotificationsByUserId(Integer recipientId, Integer offset, Integer recordPerPage) {
+    public void deleteFriendRequestNotification(Long senderId, Long recipientId) {
+        notificationRepository.findBySenderIdAndRecipientIdAndType(senderId, recipientId, Notification.Type.FRIEND_REQUEST)
+                .ifPresent(notification -> {
+                    notificationRepository.delete(notification);
+                    if (notification.isSeen()) {
+                        userStatisticService.decrementSeenNotificationCount(recipientId);
+                    } else {
+                        userStatisticService.decrementUnseenNotificationCount(recipientId);
+                    }
+                });
+    }
+
+    public List<NotificationDTO> getNotificationsByUserId(Long recipientId, Integer offset, Integer recordPerPage) {
         int pageNumber = offset / recordPerPage;
         Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
         Page<NotificationDTO> notificationPage = notificationRepository.findAllByRecipientId(pageable, recipientId);

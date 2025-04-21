@@ -8,26 +8,35 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications")
 public class Notification {
+
+    public enum Type {
+        LIKE, COMMENT, FRIEND_REQUEST
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", insertable = false, updatable = false)
     private User recipient;
 
     @Column(name = "recipient_id", nullable = false)
-    private Integer recipientId;
+    private Long recipientId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", insertable = false, updatable = false)
     private User sender;
 
     @Column(name = "sender_id")
-    private Integer senderId;
+    private Long senderId;
 
+    @Column(name = "target_id")
+    private Long targetId;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private String type;
+    private Type type;
 
     @Column(name = "content")
     private String content;
@@ -57,11 +66,11 @@ public class Notification {
         this.recipient = recipient;
     }
 
-    public Integer getRecipientId() {
+    public Long getRecipientId() {
         return recipientId;
     }
 
-    public void setRecipientId(Integer recipientId) {
+    public void setRecipientId(Long recipientId) {
         this.recipientId = recipientId;
     }
 
@@ -73,19 +82,19 @@ public class Notification {
         this.sender = sender;
     }
 
-    public Integer getSenderId() {
+    public Long getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(Integer senderId) {
+    public void setSenderId(Long senderId) {
         this.senderId = senderId;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -119,5 +128,13 @@ public class Notification {
 
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
+    }
+
+    public Long getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(Long targetId) {
+        this.targetId = targetId;
     }
 }

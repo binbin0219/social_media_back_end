@@ -20,22 +20,22 @@ public class PostStatisticsService {
     }
 
     @Transactional
-    public void incrementLikeCount(Integer postId) {
+    public void incrementLikeCount(Long postId) {
         postStatisticsRepository.incrementLikeCount(postId);
     }
 
     @Transactional
-    public void incrementCommentCount(Integer postId) {
+    public void incrementCommentCount(Long postId) {
         postStatisticsRepository.incrementCommentCount(postId);
     }
 
     @Transactional
-    public void decrementLikeCount(Integer postId) {
+    public void decrementLikeCount(Long postId) {
         postStatisticsRepository.decrementLikeCount(postId);
     }
 
     @Transactional
-    public void decrementCommentCount(Integer postId) {
+    public void decrementCommentCount(Long postId) {
         postStatisticsRepository.decrementCommentCount(postId);
     }
 }

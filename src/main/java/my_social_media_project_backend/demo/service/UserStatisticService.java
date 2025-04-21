@@ -13,32 +13,32 @@ public class UserStatisticService {
     }
 
     @Transactional
-    public void incrementFriendCount(Integer userId) {
+    public void incrementFriendCount(Long userId) {
         userStatisticRepository.incrementFriendCount(userId);
     }
 
     @Transactional
-    public void decrementFriendCount(Integer userId) {
+    public void decrementFriendCount(Long userId) {
         userStatisticRepository.decrementFriendCount(userId);
     }
 
     @Transactional
-    public void incrementUnseenNotificationCount(Integer userId) {
+    public void incrementUnseenNotificationCount(Long userId) {
         userStatisticRepository.incrementUnseenNotificationCount(userId);
     }
 
     @Transactional
-    public void decrementUnseenNotificationCount(Integer userId) {
+    public void decrementUnseenNotificationCount(Long userId) {
         userStatisticRepository.decrementUnseenNotificationCount(userId);
     }
 
     @Transactional
-    public void incrementSeenNotificationCount(Integer userId) {
+    public void incrementSeenNotificationCount(Long userId) {
         userStatisticRepository.incrementSeenNotificationCount(userId);
     }
 
     @Transactional
-    public void decrementSeenNotificationCount(Integer userId) {
+    public void decrementSeenNotificationCount(Long userId) {
         userStatisticRepository.decrementSeenNotificationCount(userId);
     }
 }

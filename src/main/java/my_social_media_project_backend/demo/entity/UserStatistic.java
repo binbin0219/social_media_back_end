@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "user_statistics")
 public class UserStatistic {
     @Id
-    private Integer userId;
+    private Long userId;
 
     @OneToOne(optional = false)
     @MapsId
@@ -14,19 +14,19 @@ public class UserStatistic {
     private User user;
 
     @Column(name = "unseen_notification_count" , nullable = false)
-    private long unseenNotificationCount = 0;
+    private Long unseenNotificationCount = 0L;
 
     @Column(name = "seen_notification_count" , nullable = false)
-    private long seenNotificationCount = 0;
+    private Long seenNotificationCount = 0L;
 
     @Column(name = "friend_count" , nullable = false)
-    private long friendCount = 0;
+    private Long friendCount = 0L;
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
@@ -38,27 +38,27 @@ public class UserStatistic {
         this.user = user;
     }
 
-    public long getUnseenNotificationCount() {
+    public Long getUnseenNotificationCount() {
         return unseenNotificationCount;
     }
 
-    public void setUnseenNotificationCount(long unseenNotificationCount) {
+    public void setUnseenNotificationCount(Long unseenNotificationCount) {
         this.unseenNotificationCount = unseenNotificationCount;
     }
 
-    public long getSeenNotificationCount() {
+    public Long getSeenNotificationCount() {
         return seenNotificationCount;
     }
 
-    public void setSeenNotificationCount(long seenNotificationCount) {
+    public void setSeenNotificationCount(Long seenNotificationCount) {
         this.seenNotificationCount = seenNotificationCount;
     }
 
-    public long getFriendCount() {
+    public Long getFriendCount() {
         return friendCount;
     }
 
-    public void setFriendCount(long friendCount) {
+    public void setFriendCount(Long friendCount) {
         this.friendCount = friendCount;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.nio.Buffer;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -61,15 +62,32 @@ public class AvatarService {
                 .block(); // Blocking because we're in a sync context, can be made reactive if needed
     }
 
-    public String createAvatar(Integer userId, String gender) {
+    public String createAvatar(Long userId, String gender) {
         try {
-            String desiredPath = String.format("user/%d/avatar/avatar.png", userId);
+            String desiredPath = r2StorageService.generateUserAvatarPath(userId);
             String avatarSvg = getRandomAvatarSvgFromAvatarIo(gender);
             byte[] avatarPng = BatikTranscoderUtils.convertSvgToPng(avatarSvg);
             return r2StorageService.uploadFile(desiredPath, avatarPng);
         } catch (TranscoderException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getRandomAvatarBase64(String gender) throws TranscoderException, IOException {
+        String avatarSvg = getRandomAvatarSvgFromAvatarIo(gender);
+        byte[] avatarPng = BatikTranscoderUtils.convertSvgToPng(avatarSvg);
+        String avatarBase64 = Base64.getEncoder().encodeToString(avatarPng);
+        return "data:image/png;base64," + avatarBase64;
+    }
+
+    public String updateUserAvatar(Long userId, String avatarBase64) {
+        if (avatarBase64.contains(",")) {
+            avatarBase64 = avatarBase64.split(",")[1];
+        }
+
+        byte[] imageBytes = Base64.getDecoder().decode(avatarBase64);
+        String desiredPath = r2StorageService.generateUserAvatarPath(userId);
+        return r2StorageService.uploadFile(desiredPath, imageBytes);
     }
 
     private <T> T getRandomElement(List<T> list) {
