@@ -1,14 +1,20 @@
 package my_social_media_project_backend.demo.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import my_social_media_project_backend.demo.dto.FriendDTO;
+import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
 import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.Notification;
 import my_social_media_project_backend.demo.exception.CannotAcceptFriendRequestException;
 import my_social_media_project_backend.demo.exception.CannotSendFriendRequestException;
 import my_social_media_project_backend.demo.exception.CannotUnsendFriendRequestException;
 import my_social_media_project_backend.demo.repository.FriendshipRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -99,6 +105,13 @@ public class FriendshipService {
 
     private Friendship findByUserAndFriendIds(Long userId, Long friendId) {
         return friendshipRepository.findByUserAndFriendIds(userId, friendId).orElse(null);
+    }
+
+    public List<FriendDTO> getFriends(Long userId, Integer offset, Integer recordPerPage) {
+        int pageNumber = offset / recordPerPage;
+        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        Page<FriendDTO> friendPage = friendshipRepository.findFriends(userId, pageable);
+        return friendPage.getContent();
     }
 
     private void createNewFriendRequest(Long userId, Long friendId) {

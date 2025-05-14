@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
@@ -80,6 +81,12 @@ public class User {
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Notification> sentNotifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private UserStatistic userStatistic;
@@ -246,5 +253,21 @@ public class User {
 
     public void setUserStatistic(UserStatistic userStatistic) {
         this.userStatistic = userStatistic;
+    }
+
+    public List<ChatRoomMember> getChatRoomMembers() {
+        return chatRoomMembers;
+    }
+
+    public void setChatRoomMembers(List<ChatRoomMember> chatRoomMembers) {
+        this.chatRoomMembers = chatRoomMembers;
+    }
+
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
+    }
+
+    public void setChatMessages(List<ChatMessage> chatMessages) {
+        this.chatMessages = chatMessages;
     }
 }

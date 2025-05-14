@@ -2,6 +2,8 @@ package my_social_media_project_backend.demo.utility;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -29,5 +31,22 @@ public class CookieUtils {
         }
         return null;
     }
+
+    public String extractTokenFromCookie(ServerHttpRequest request) {
+        if (request instanceof ServletServerHttpRequest servletRequest) {
+            HttpServletRequest httpServletRequest = servletRequest.getServletRequest();
+            Cookie[] cookies = httpServletRequest.getCookies();
+
+            if (cookies != null) {
+                return Arrays.stream(cookies)
+                        .filter(cookie -> cookieName.equals(cookie.getName()))
+                        .map(Cookie::getValue)
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
+        return null;
+    }
+
 }
 

@@ -2,6 +2,7 @@ package my_social_media_project_backend.demo.repository;
 
 import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.projection.UserSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +37,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             ),
             0,
             0,
+            null,
             u.createAt
         )
         FROM User u
@@ -64,11 +66,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
             null,
             COALESCE(us.friendCount, 0),
             COALESCE(us.unseenNotificationCount, 0),
+            COALESCE(SUM(crm.unreadCount), 0),
             u.createAt
         )
         FROM User u
         LEFT JOIN UserStatistic us ON us.userId = :userId
+        LEFT JOIN ChatRoomMember crm ON crm.user.id = :userId
         WHERE u.id = :userId
+        GROUP BY u.id, u.country, u.username, u.firstName, u.lastName, u.occupation,
+                 u.phoneNumber, u.region, u.relationshipStatus, u.gender, u.avatar, 
+                 us.friendCount, us.unseenNotificationCount, u.createAt
     """)
     Optional<UserDTO> getCurrentUserById(@Param("userId") Long userId);
+
+
+    @Query("SELECT u.username AS username, u.avatar AS avatar, u.id AS id FROM User u WHERE u.id IN :ids")
+    List<UserSummary> findUserSummariesByIds(@Param("ids") List<Long> ids);
 }

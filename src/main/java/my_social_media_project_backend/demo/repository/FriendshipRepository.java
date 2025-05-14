@@ -1,7 +1,10 @@
 package my_social_media_project_backend.demo.repository;
 
 import jakarta.transaction.Transactional;
+import my_social_media_project_backend.demo.dto.FriendDTO;
 import my_social_media_project_backend.demo.entity.Friendship;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -28,5 +31,19 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
         OR (f.userId = :friendId AND f.friendId = :userId)
     """)
     void deleteFriendshipBetweenUsers(@Param("userId") Long userId, @Param("friendId") Long friendId);
+
+    @Query("""
+        SELECT new my_social_media_project_backend.demo.dto.FriendDTO(
+            u.id,
+            u.avatar,
+            u.username
+        )
+        FROM User u
+        JOIN Friendship f ON
+             (f.userId = :userId AND u.id = f.friendId)
+             OR (f.friendId = :userId AND u.id = f.userId)
+        WHERE u.id != :userId
+    """)
+    Page<FriendDTO> findFriends(@Param("userId") Long userId, Pageable pageable);
 
 }

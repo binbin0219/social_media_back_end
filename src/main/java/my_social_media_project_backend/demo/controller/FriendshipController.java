@@ -1,6 +1,7 @@
 package my_social_media_project_backend.demo.controller;
 
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.FriendDTO;
 import my_social_media_project_backend.demo.exception.CannotAcceptFriendRequestException;
 import my_social_media_project_backend.demo.exception.CannotSendFriendRequestException;
 import my_social_media_project_backend.demo.exception.CannotUnsendFriendRequestException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,6 +26,24 @@ public class FriendshipController {
 
     public FriendshipController(FriendshipService friendshipService) {
         this.friendshipService = friendshipService;
+    }
+
+    @GetMapping("/get/friends")
+    public ResponseEntity<Object> getFriends(
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer recordPerPage
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        try {
+            List<FriendDTO> friends = friendshipService.getFriends(userDetails.getUserId(), offset, recordPerPage);
+            response.put("friends", friends);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @GetMapping("/request/send")

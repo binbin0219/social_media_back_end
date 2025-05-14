@@ -4,10 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.AllUnreadCountDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.dto.UserSignupDTO;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.service.AvatarService;
+import my_social_media_project_backend.demo.service.ChatRoomService;
 import my_social_media_project_backend.demo.service.UserService;
 import my_social_media_project_backend.demo.utility.CookieUtils;
 import my_social_media_project_backend.demo.utility.JwtUtils;
@@ -31,13 +33,13 @@ public class AuthController {
     private final CookieUtils cookieUtils;
     private final JwtUtils jwtUtils;
     private final UserService userService;
-    private final AvatarService avatarService;
+    private final ChatRoomService chatRoomService;
 
-    public AuthController(JwtUtils jwtUtils, UserService userService, CookieUtils cookieUtils, AvatarService avatarService) {
+    public AuthController(CookieUtils cookieUtils, JwtUtils jwtUtils, UserService userService, ChatRoomService chatRoomService) {
+        this.cookieUtils = cookieUtils;
         this.jwtUtils = jwtUtils;
         this.userService = userService;
-        this.cookieUtils = cookieUtils;
-        this.avatarService = avatarService;
+        this.chatRoomService = chatRoomService;
     }
 
     @PostMapping("/signup")

@@ -1,29 +1,28 @@
 package my_social_media_project_backend.demo.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import my_social_media_project_backend.demo.entity.Notification;
 import my_social_media_project_backend.demo.utility.JsonUtil;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class UserDTO <T> {
-    private final Long id;
-    private final String country;
-    private final String username;
-    private final String firstName;
-    private final String lastName;
-    private final String occupation;
-    private final JsonNode phoneNumber;
-    private final String region;
-    private final String relationshipStatus;
-    private final String gender;
-    private final String avatar;
-    private final String coverUrl;
-    private final FriendshipDTO friendship;
-    private final long friendCount;
-    private final long unseenNotificationCount;
-    private final LocalDateTime createAt;
+    private Long id;
+    private String country;
+    private String username;
+    private String firstName;
+    private String lastName;
+    private String occupation;
+    private JsonNode phoneNumber;
+    private String region;
+    private String relationshipStatus;
+    private String gender;
+    private String avatar;
+    private String coverUrl;
+    private FriendshipDTO friendship;
+    private long friendCount;
+    private long unseenNotificationCount;
+    private Long unreadChatMessageCount;
+    private LocalDateTime createAt;
 
     public UserDTO(
             Long id,
@@ -41,6 +40,7 @@ public class UserDTO <T> {
             FriendshipDTO friendship,
             long friendCount,
             long unseenNotificationCount,
+            Long unreadChatMessageCount,
             LocalDateTime createAt
     ) {
         this.id = id;
@@ -57,6 +57,7 @@ public class UserDTO <T> {
         this.friendship = friendship;
         this.friendCount = friendCount;
         this.unseenNotificationCount = unseenNotificationCount;
+        this.unreadChatMessageCount = unreadChatMessageCount;
         this.createAt = createAt;
 
         if(phoneNumber != null) {
@@ -130,5 +131,77 @@ public class UserDTO <T> {
 
     public long getUnseenNotificationCount() {
         return unseenNotificationCount;
+    }
+
+    public Long getUnreadChatMessageCount() {
+        return unreadChatMessageCount;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public void setPhoneNumber(JsonNode phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setRelationshipStatus(String relationshipStatus) {
+        this.relationshipStatus = relationshipStatus;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
+    }
+
+    public void setFriendship(FriendshipDTO friendship) {
+        this.friendship = friendship;
+    }
+
+    public void setFriendCount(long friendCount) {
+        this.friendCount = friendCount;
+    }
+
+    public void setUnseenNotificationCount(long unseenNotificationCount) {
+        this.unseenNotificationCount = unseenNotificationCount;
+    }
+
+    public void setUnreadChatMessageCount(Long unreadChatMessageCount) {
+        this.unreadChatMessageCount = unreadChatMessageCount;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
     }
 }

@@ -1,14 +1,15 @@
 package my_social_media_project_backend.demo.service;
 import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.UserDTO;
-import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
-import my_social_media_project_backend.demo.dto.UserSignupDTO;
+import my_social_media_project_backend.demo.dto.*;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.exception.AccountNameExistedException;
 import my_social_media_project_backend.demo.exception.UserNotFoundException;
 import my_social_media_project_backend.demo.repository.UserRepository;
 import my_social_media_project_backend.demo.utility.PasswordUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -134,26 +135,5 @@ public class UserService {
         if (dto.getOccupation() != null) user.setOccupation(dto.getOccupation());
         if (dto.getRelationshipStatus() != null) user.setRelationshipStatus(dto.getRelationshipStatus());
         userRepository.save(user);
-    }
-
-    public UserDTO mapToUserDTO(User user) {
-        return new UserDTO(
-                user.getId(),
-                user.getCountry(),
-                user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getOccupation(),
-                user.getPhoneNumber(),
-                user.getRegion(),
-                user.getRelationshipStatus(),
-                user.getGender(),
-                getOrCreateUserAvatar(user),
-                user.getCoverUrl(),
-                null,
-                0,
-                0,
-                user.getCreateAt()
-        );
     }
 }
