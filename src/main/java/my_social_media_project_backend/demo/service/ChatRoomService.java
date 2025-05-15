@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
@@ -126,8 +127,8 @@ public class ChatRoomService {
             throw new EntityExistsException("Failed to initiate private chat room: chat room already exist");
         }
 
-        User meRef = userRepository.getReferenceById(meId);
-        User peerRef = userRepository.getReferenceById(peerId);
+        User meRef = userRepository.findById(meId).orElseThrow(() -> new EntityNotFoundException("Failed to init private chat: me doesn't exist !"));;
+        User peerRef = userRepository.findById(peerId).orElseThrow(() -> new EntityNotFoundException("Failed to init private chat: peer doesn't exist !"));
         room = newPrivateRoom(meRef, peerRef);
         ChatMessage chatMessage = newMessage(text, meRef, room);
 
@@ -203,6 +204,9 @@ public class ChatRoomService {
                     ChatRoomMember chatRoomMember = new ChatRoomMember();
                     chatRoomMember.setChatRoom(chatRoom);
                     chatRoomMember.setUser(member);
+                    if(Objects.equals(member.getId(), peer.getId())) {
+                        chatRoomMember.setUnreadCount(1L);
+                    }
                     return chatRoomMember;
                 }).toList();
 
