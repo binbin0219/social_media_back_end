@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -135,5 +136,15 @@ public class UserService {
         if (dto.getOccupation() != null) user.setOccupation(dto.getOccupation());
         if (dto.getRelationshipStatus() != null) user.setRelationshipStatus(dto.getRelationshipStatus());
         userRepository.save(user);
+    }
+
+    public List<SearchUserDTO> searchByUsername(String username, Integer offset, Integer recordPerPage) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be blank!");
+        }
+
+        int pageNumber = offset / recordPerPage;
+        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.ASC, "username"));
+        return userRepository.findByUsername(username, pageable);
     }
 }

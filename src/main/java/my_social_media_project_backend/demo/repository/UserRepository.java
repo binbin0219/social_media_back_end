@@ -1,8 +1,10 @@
 package my_social_media_project_backend.demo.repository;
 
+import my_social_media_project_backend.demo.dto.SearchUserDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.projection.UserSummary;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -82,4 +84,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.username AS username, u.avatar AS avatar, u.id AS id FROM User u WHERE u.id IN :ids")
     List<UserSummary> findUserSummariesByIds(@Param("ids") List<Long> ids);
+
+    @Query("""
+        SELECT new my_social_media_project_backend.demo.dto.SearchUserDTO(
+            u.id,
+            u.username,
+            u.avatar
+        )
+        FROM User u
+        WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))
+    """)
+    List<SearchUserDTO> findByUsername(@Param("username") String username, Pageable pageable);
+
 }

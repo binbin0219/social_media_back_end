@@ -4,6 +4,7 @@ import jakarta.activation.UnsupportedDataTypeException;
 import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
+import my_social_media_project_backend.demo.dto.SearchUserDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
 import my_social_media_project_backend.demo.entity.User;
@@ -105,6 +106,25 @@ public class UserController {
         } catch (ValidationException | EntityNotFoundException e) {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(response);
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchByUsername(
+            @RequestParam("username") String username,
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer recordPerPage
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<SearchUserDTO> searchUserDTOS = userService.searchByUsername(username,offset, recordPerPage);
+            response.put("searchResults", searchUserDTOS);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            System.out.println("Failed to search user by username : " + e.getMessage());
+            response.put("error", "Something went wrong");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
