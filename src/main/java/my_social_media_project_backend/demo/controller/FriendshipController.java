@@ -30,14 +30,14 @@ public class FriendshipController {
 
     @GetMapping("/get/friends")
     public ResponseEntity<Object> getFriends(
+            @RequestParam Long userId,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "10") Integer recordPerPage
     ) {
         Map<String, Object> response = new HashMap<>();
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-            List<FriendDTO> friends = friendshipService.getFriends(userDetails.getUserId(), offset, recordPerPage);
+            List<FriendDTO> friends = friendshipService.getFriends(userId, offset, recordPerPage);
             response.put("friends", friends);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {

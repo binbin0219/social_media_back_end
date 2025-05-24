@@ -26,10 +26,22 @@ public interface UserStatisticRepository extends JpaRepository<UserStatistic, Lo
     void decrementFriendCount(@Param("userId") Long userId);
 
     @Modifying
-    @Query("UPDATE UserStatistic us SET us.unseenNotificationCount = us.unseenNotificationCount - 1 WHERE us.userId = :userId")
+    @Query("""
+        UPDATE UserStatistic us
+        SET us.unseenNotificationCount = us.unseenNotificationCount - 1
+        WHERE us.userId = :userId AND us.unseenNotificationCount > 0
+    """)
     void decrementUnseenNotificationCount(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE UserStatistic us SET us.seenNotificationCount = us.seenNotificationCount - 1 WHERE us.userId = :userId")
     void decrementSeenNotificationCount(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("Update UserStatistic us SET us.newNotificationCount = 0 WHERE us.userId = :userId")
+    void clearNewNotificationCount(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE UserStatistic us SET us.newNotificationCount = us.newNotificationCount + 1 WHERE us.userId = :userId")
+    void incrementNewNotificationCount(@Param("userId") Long userId);
 }

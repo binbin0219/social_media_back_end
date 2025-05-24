@@ -8,6 +8,7 @@ import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.PostLike;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.repository.PostLikeRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,25 +20,28 @@ public class PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final PostStatisticsService postStatisticsService;
     private final NotificationService notificationService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public PostLikeService(PostLikeRepository postLikeRepository, PostStatisticsService postStatisticsService, NotificationService notificationService) {
+    public PostLikeService(PostLikeRepository postLikeRepository, PostStatisticsService postStatisticsService, NotificationService notificationService, SimpMessagingTemplate messagingTemplate) {
         this.postLikeRepository = postLikeRepository;
         this.postStatisticsService = postStatisticsService;
         this.notificationService = notificationService;
+        this.messagingTemplate = messagingTemplate;
     }
 
-    public PostLike create(Post post, User user) {
+    public PostLike likePost(Post post, User user) {
         PostLike existingPostLike = postLikeRepository.findByPostAndUser(post, user).orElse(null);
         if(existingPostLike != null) throw new EntityExistsException("User " + user.getId() + " has already liked this post (" + post.getId() + ")");
         PostLike postLike = new PostLike();
         postLike.setPost(post);
         postLike.setUser(user);
+        PostLike savedPostLike = postLikeRepository.save(postLike);
         postStatisticsService.incrementLikeCount(post.getId());
 
         if(!isLikeByAuthor(post.getUser().getId(), user.getId())) {
-            notificationService.sendNotificationByIds(
-                    user.getId(),
-                    post.getUser().getId(),
+            notificationService.sendNotification(
+                    user,
+                    post.getUser(),
                     Notification.Type.LIKE,
                     post.getTitle(),
                     null,
@@ -45,16 +49,22 @@ public class PostLikeService {
             );
         }
 
-        return postLikeRepository.save(postLike);
+        messagingTemplate.convertAndSend(
+                "/topic/" + post.getId() + "/postLikes",
+                ""
+        );
+
+        return savedPostLike;
     }
 
-    public void delete (Post post, User user) {
+    public void unlikePost(Post post, User user) {
         PostLike postLike = postLikeRepository.findByPostAndUser(post, user)
                 .orElseThrow(()-> new EntityNotFoundException("Post like not found"));
         postStatisticsService.decrementLikeCount(post.getId());
         postLikeRepository.delete(postLike);
 
         if(!isLikeByAuthor(post.getUser().getId(), user.getId())) {
+            // Delete the like notification on post author side
             notificationService.deleteByTargetIdAndType(
                     user.getId(),
                     post.getUser().getId(),
@@ -62,6 +72,11 @@ public class PostLikeService {
                     Notification.Type.LIKE
             );
         }
+
+        messagingTemplate.convertAndSend(
+                "/topic/" + post.getId() + "/postDislikes",
+                ""
+        );
     }
 
     public List<PostLikeDTO> convertToPostLikeDTOs(List<PostLike> postLikes) {

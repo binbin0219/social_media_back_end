@@ -20,7 +20,7 @@ public class UserDTO <T> {
     private String coverUrl;
     private FriendshipDTO friendship;
     private long friendCount;
-    private long unseenNotificationCount;
+    private long newNotificationCount;
     private Long unreadChatMessageCount;
     private LocalDateTime createAt;
 
@@ -39,7 +39,7 @@ public class UserDTO <T> {
             String coverUrl,
             FriendshipDTO friendship,
             long friendCount,
-            long unseenNotificationCount,
+            long newNotificationCount,
             Long unreadChatMessageCount,
             LocalDateTime createAt
     ) {
@@ -56,7 +56,7 @@ public class UserDTO <T> {
         this.coverUrl = coverUrl;
         this.friendship = friendship;
         this.friendCount = friendCount;
-        this.unseenNotificationCount = unseenNotificationCount;
+        this.newNotificationCount = newNotificationCount;
         this.unreadChatMessageCount = unreadChatMessageCount;
         this.createAt = createAt;
 
@@ -129,8 +129,8 @@ public class UserDTO <T> {
         return friendCount;
     }
 
-    public long getUnseenNotificationCount() {
-        return unseenNotificationCount;
+    public long getNewNotificationCount() {
+        return newNotificationCount;
     }
 
     public Long getUnreadChatMessageCount() {
@@ -193,8 +193,8 @@ public class UserDTO <T> {
         this.friendCount = friendCount;
     }
 
-    public void setUnseenNotificationCount(long unseenNotificationCount) {
-        this.unseenNotificationCount = unseenNotificationCount;
+    public void setNewNotificationCount(long newNotificationCount) {
+        this.newNotificationCount = newNotificationCount;
     }
 
     public void setUnreadChatMessageCount(Long unreadChatMessageCount) {

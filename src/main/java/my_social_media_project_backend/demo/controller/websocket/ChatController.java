@@ -1,24 +1,16 @@
-package my_social_media_project_backend.demo.controller;
+package my_social_media_project_backend.demo.controller.websocket;
 
-import jakarta.validation.Valid;
 import my_social_media_project_backend.demo.UserSessionRegistry;
-import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.ChatRoomDTO;
 import my_social_media_project_backend.demo.dto.request.SendPrivateMessageRequest;
 import my_social_media_project_backend.demo.dto.response.SendPrivateMessageResponse;
 import my_social_media_project_backend.demo.service.ChatRoomMemberService;
 import my_social_media_project_backend.demo.service.ChatRoomService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 @Controller

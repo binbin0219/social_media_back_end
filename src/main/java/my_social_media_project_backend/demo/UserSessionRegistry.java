@@ -26,6 +26,13 @@ public class UserSessionRegistry {
         });
     }
 
+    public void setNotificationOpen(Long userId, boolean isOpen) {
+        userSessions.computeIfPresent(userId, (k,v) -> {
+            v.setNotificationOpen(isOpen);
+            return v;
+        });
+    }
+
     public void setActiveChatRoomId(Long userId, String chatRoomId) {
         userSessions.computeIfPresent(userId, (k, v) -> {
             v.setActiveChatRoomId(chatRoomId);
@@ -58,6 +65,11 @@ public class UserSessionRegistry {
         return session != null && Objects.equals(session.isChatOpen, true);
     }
 
+    public boolean isNotificationOpen(Long userId) {
+        UserSession session = userSessions.get(userId);
+        return session != null && Objects.equals(session.isNotificationOpen, true);
+    }
+
     public boolean isAnyChatRoomActive(Long userId) {
         UserSession session = userSessions.get(userId);
         return session != null && !Objects.equals(session.getActiveChatRoomId(), null);
@@ -76,6 +88,7 @@ public class UserSessionRegistry {
     public static class UserSession {
         private boolean connected;
         private boolean isChatOpen;
+        private boolean isNotificationOpen;
         private String activeChatRoomId;
         private boolean viewingNotification;
 
@@ -93,6 +106,14 @@ public class UserSessionRegistry {
 
         public void setChatOpen(boolean chatOpen) {
             isChatOpen = chatOpen;
+        }
+
+        public boolean isNotificationOpen() {
+            return isNotificationOpen;
+        }
+
+        public void setNotificationOpen(boolean notificationOpen) {
+            isNotificationOpen = notificationOpen;
         }
 
         public String getActiveChatRoomId() {

@@ -19,6 +19,9 @@ public class UserStatistic {
     @Column(name = "seen_notification_count" , nullable = false)
     private Long seenNotificationCount = 0L;
 
+    @Column(name = "new_notification_count")
+    private Long newNotificationCount = 0L;
+
     @Column(name = "friend_count" , nullable = false)
     private Long friendCount = 0L;
 
@@ -60,5 +63,13 @@ public class UserStatistic {
 
     public void setFriendCount(Long friendCount) {
         this.friendCount = friendCount;
+    }
+
+    public Long getNewNotificationCount() {
+        return newNotificationCount;
+    }
+
+    public void setNewNotificationCount(Long newNotificationCount) {
+        this.newNotificationCount = newNotificationCount;
     }
 }

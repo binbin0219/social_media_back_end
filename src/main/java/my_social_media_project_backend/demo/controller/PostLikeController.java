@@ -39,11 +39,11 @@ public class PostLikeController {
 
         switch(action) {
             case "like":
-                postLikeService.create(post, user);
+                postLikeService.likePost(post, user);
                 break;
 
             case "unlike":
-                postLikeService.delete(post, user);
+                postLikeService.unlikePost(post, user);
                 break;
 
             default:

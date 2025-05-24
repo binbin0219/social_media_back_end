@@ -41,4 +41,14 @@ public class UserStatisticService {
     public void decrementSeenNotificationCount(Long userId) {
         userStatisticRepository.decrementSeenNotificationCount(userId);
     }
+
+    @Transactional
+    public void incrementNewNotificationCount(Long userId) {
+        userStatisticRepository.incrementNewNotificationCount(userId);
+    }
+
+    @Transactional
+    public void clearNewNotificationCount(Long userId) {
+        userStatisticRepository.clearNewNotificationCount(userId);
+    }
 }

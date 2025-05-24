@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo.service;
 
+import my_social_media_project_backend.demo.dto.NotificationDTO;
 import my_social_media_project_backend.demo.dto.PostCommentDTO;
 import my_social_media_project_backend.demo.dto.PostCommentUserDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
@@ -11,6 +12,7 @@ import my_social_media_project_backend.demo.repository.CommentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
@@ -23,12 +25,14 @@ public class CommentService {
     private final UserService userService;
     private final PostStatisticsService postStatisticsService;
     private final NotificationService notificationService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public CommentService(CommentRepository commentRepository, UserService userService, PostStatisticsService postStatisticsService, NotificationService notificationService) {
+    public CommentService(CommentRepository commentRepository, UserService userService, PostStatisticsService postStatisticsService, NotificationService notificationService, SimpMessagingTemplate messagingTemplate) {
         this.commentRepository = commentRepository;
         this.userService = userService;
         this.postStatisticsService = postStatisticsService;
         this.notificationService = notificationService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public PostCommentDTO create(Post post, User user, String content) {
@@ -40,15 +44,21 @@ public class CommentService {
         postStatisticsService.incrementCommentCount(post.getId());
 
         if(!isPostAuthorCommentOnOwnPost(post.getUser().getId(), user.getId())) {
-            notificationService.sendNotificationByIds(
-                    user.getId(),
-                    post.getUser().getId(),
+            notificationService.sendNotification(
+                    user,
+                    post.getUser(),
                     Notification.Type.COMMENT,
                     post.getTitle(),
                     null,
                     post.getId()
             );
         }
+
+        PostCommentDTO postCommentDTO = convertToPostCommentDTO(comment);
+        messagingTemplate.convertAndSend(
+                "/topic/" + post.getId() + "/postComments",
+                postCommentDTO
+        );
 
         return convertToPostCommentDTO(comment);
     }

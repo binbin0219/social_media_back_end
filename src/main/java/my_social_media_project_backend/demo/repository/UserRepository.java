@@ -67,7 +67,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             null,
             null,
             COALESCE(us.friendCount, 0),
-            COALESCE(us.unseenNotificationCount, 0),
+            COALESCE(us.newNotificationCount, 0),
             COALESCE(SUM(crm.unreadCount), 0),
             u.createAt
         )
@@ -77,7 +77,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         WHERE u.id = :userId
         GROUP BY u.id, u.country, u.username, u.firstName, u.lastName, u.occupation,
                  u.phoneNumber, u.region, u.relationshipStatus, u.gender, u.avatar, 
-                 us.friendCount, us.unseenNotificationCount, u.createAt
+                 us.friendCount, us.newNotificationCount, u.createAt
     """)
     Optional<UserDTO> getCurrentUserById(@Param("userId") Long userId);
 

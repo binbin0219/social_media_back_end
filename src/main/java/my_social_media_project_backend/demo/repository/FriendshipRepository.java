@@ -40,8 +40,9 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
         )
         FROM User u
         JOIN Friendship f ON
-             (f.userId = :userId AND u.id = f.friendId)
-             OR (f.friendId = :userId AND u.id = f.userId)
+             ((f.userId = :userId AND f.friendId = u.id) OR (f.friendId = :userId AND f.userId = u.id))
+             AND
+             f.status = ACCEPTED
         WHERE u.id != :userId
     """)
     Page<FriendDTO> findFriends(@Param("userId") Long userId, Pageable pageable);

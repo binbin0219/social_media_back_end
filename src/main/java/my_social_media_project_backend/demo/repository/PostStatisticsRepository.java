@@ -16,10 +16,10 @@ public interface PostStatisticsRepository extends JpaRepository<PostStatistic, L
     void incrementCommentCount(@Param("postId") Long postId);
 
     @Modifying
-    @Query("UPDATE PostStatistic ps SET ps.likeCount = ps.likeCount - 1 WHERE ps.post.id = :postId")
+    @Query("UPDATE PostStatistic ps SET ps.likeCount = ps.likeCount - 1 WHERE ps.post.id = :postId AND ps.likeCount > 0")
     void decrementLikeCount(@Param("postId") Long postId);
 
     @Modifying
-    @Query("UPDATE PostStatistic ps SET ps.commentCount = ps.commentCount - 1 WHERE ps.post.id = :postId")
+    @Query("UPDATE PostStatistic ps SET ps.commentCount = ps.commentCount - 1 WHERE ps.post.id = :postId AND ps.commentCount > 0")
     void decrementCommentCount(@Param("postId") Long postId);
 }
