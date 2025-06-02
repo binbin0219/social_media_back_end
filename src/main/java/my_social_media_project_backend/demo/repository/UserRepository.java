@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByAccountName(String accountName);
+    Optional<User> findByEmail(String email);
 
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.UserDTO(

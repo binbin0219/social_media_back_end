@@ -3,11 +3,10 @@ import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.*;
 import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.exception.AccountNameExistedException;
+import my_social_media_project_backend.demo.exception.emailExistedException;
 import my_social_media_project_backend.demo.exception.UserNotFoundException;
 import my_social_media_project_backend.demo.repository.UserRepository;
 import my_social_media_project_backend.demo.utility.PasswordUtil;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,11 +31,11 @@ public class UserService {
         this.r2StorageService = r2StorageService;
     }
 
-    public User validateUser(String accountName, String password) {
-        User user = getUserByAccountName(accountName);
+    public User validateUser(String email, String password) {
+        User user = getUserByEmail(email);
         if(user == null) return null;
         if(!PasswordUtil.matched(password, user.getPassword())) return null;
-        return getUserByAccountName(accountName);
+        return getUserByEmail(email);
     }
 
     public User getByIdOrNull(Long id) {
@@ -48,8 +46,8 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
-    public User getUserByAccountName(String accountName) {
-        return userRepository.findByAccountName(accountName).orElse(null);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     public UserDTO getUserProfileById(Long userId) {
@@ -58,13 +56,11 @@ public class UserService {
     }
 
     public User signupNewUser(UserSignupDTO userSignupDTO) {
-        User userWithThisAccountName = getUserByAccountName(userSignupDTO.getAccountName());
-        if(userWithThisAccountName != null) throw new AccountNameExistedException("Account name already existed!");
+        User userWithThisEmail = getUserByEmail(userSignupDTO.getEmail());
+        if(userWithThisEmail != null) throw new emailExistedException("Account name already existed!");
         User newUser = new User();
-        newUser.setFirstName(userSignupDTO.getFirstName());
-        newUser.setLastName(userSignupDTO.getLastName());
         newUser.setUsername(userSignupDTO.getUsername());
-        newUser.setAccountName(userSignupDTO.getAccountName());
+        newUser.setEmail(userSignupDTO.getEmail());
         newUser.setPassword(PasswordUtil.encodePassword(userSignupDTO.getPassword()));
         newUser.setGender(userSignupDTO.getGender());
         newUser = userRepository.save(newUser);

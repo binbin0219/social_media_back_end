@@ -44,6 +44,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/auth/logout").permitAll()
                     .requestMatchers("/api/auth/csrf").permitAll()
                     .requestMatchers("/api/auth/signup").permitAll()
+                    .requestMatchers("/api/auth/email/exist").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

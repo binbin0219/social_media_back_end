@@ -1,12 +1,10 @@
 package my_social_media_project_backend.demo.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import my_social_media_project_backend.demo.dto.PhoneNumberDTO;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -21,8 +19,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_name", unique = true, length = 50)
-    private String accountName;
+    @Email
+    @Size(max = 50)
+    @Column(name = "email", unique = true, length = 50)
+    private String email;
 
     @Column(name = "gender", length = 20)
     private String gender;
@@ -99,12 +99,12 @@ public class User {
         this.id = id;
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getGender() {

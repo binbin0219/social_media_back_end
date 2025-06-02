@@ -9,8 +9,7 @@ public class NotificationDTO {
     private Long recipientId;
     private Long senderId;
     private String senderAvatar;
-    private String senderFirstName;
-    private String senderLastName;
+    private String senderUsername;
     private Notification.Type type;
     private String content;
     private String link;
@@ -18,13 +17,12 @@ public class NotificationDTO {
     private Long targetId;
     private LocalDateTime createAt;
 
-    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderAvatar, String senderFirstName, String senderLastName, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createAt) {
+    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderAvatar, String senderUsername, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createAt) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
         this.senderAvatar = senderAvatar;
-        this.senderFirstName = senderFirstName;
-        this.senderLastName = senderLastName;
+        this.senderUsername = senderUsername;
         this.type = type;
         this.content = content;
         this.link = link;
@@ -105,20 +103,12 @@ public class NotificationDTO {
         this.senderAvatar = senderAvatar;
     }
 
-    public String getSenderFirstName() {
-        return senderFirstName;
+    public String getSenderUsername() {
+        return senderUsername;
     }
 
-    public void setSenderFirstName(String senderFirstName) {
-        this.senderFirstName = senderFirstName;
-    }
-
-    public String getSenderLastName() {
-        return senderLastName;
-    }
-
-    public void setSenderLastName(String senderLastName) {
-        this.senderLastName = senderLastName;
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
     }
 
     public Long getTargetId() {

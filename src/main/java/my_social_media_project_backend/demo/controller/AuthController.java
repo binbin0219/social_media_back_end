@@ -50,9 +50,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> credentials, HttpServletResponse response) {
-        String accountName = credentials.get("accountName");
+        String email = credentials.get("email");
         String password = credentials.get("password");
-        User validatedUser = userService.validateUser(accountName, password);
+        User validatedUser = userService.validateUser(email, password);
         if (validatedUser != null) {
             String token = jwtUtils.createToken(validatedUser.getId());
 
@@ -61,7 +61,7 @@ public class AuthController {
 
             return ResponseEntity.ok("Login Successful!");
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password!");
         }
     }
 
@@ -85,5 +85,17 @@ public class AuthController {
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("csrfToken", csrfToken != null ? csrfToken.getToken() : "");
         return tokenMap;
+    }
+
+    @GetMapping("/email/exist")
+    public boolean checkIsEmailExisted(
+        @RequestParam String email
+    ) {
+        try {
+            User userWithProvidedEmail = userService.getUserByEmail(email);
+            return userWithProvidedEmail != null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

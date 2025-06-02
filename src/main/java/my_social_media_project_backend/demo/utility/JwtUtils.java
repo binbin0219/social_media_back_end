@@ -29,7 +29,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String getAccountNameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         byte[] keyBytes = secretKey.getBytes();
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();

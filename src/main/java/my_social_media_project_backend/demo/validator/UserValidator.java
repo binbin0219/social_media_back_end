@@ -32,12 +32,13 @@ public class UserValidator {
     }
 
     public void validateFirstName(String firstName) throws ValidationException {
-        if (firstName == null || firstName.trim().isEmpty()) {
-            throw new ValidationException("firstName", "First name is required");
+        // Skip if it is a empty string because first name can be set as empty
+        if(firstName.trim().isEmpty()) {
+            return;
         }
 
-        if (firstName.length() < 2 || firstName.length() > 30) {
-            throw new ValidationException("firstName", "First name must be between 2 and 30 characters");
+        if (firstName.length() > 20) {
+            throw new ValidationException("firstName", "First name must not more than and 20 characters");
         }
 
         if (!firstName.matches("^[a-zA-Z ]+$")) {
@@ -46,12 +47,13 @@ public class UserValidator {
     }
 
     public void validateLastName(String lastName) throws ValidationException {
-        if (lastName == null || lastName.trim().isEmpty()) {
-            throw new ValidationException("lastName", "Last name is required");
+        // Skip if it is a empty string because last name can be set as empty
+        if(lastName.trim().isEmpty()) {
+            return;
         }
 
-        if (lastName.length() < 2 || lastName.length() > 30) {
-            throw new ValidationException("lastName", "Last name must be between 2 and 30 characters");
+        if (lastName.length() > 20) {
+            throw new ValidationException("lastName", "Last name must not more than 30 characters");
         }
 
         if (!lastName.matches("^[a-zA-Z ]+$")) {

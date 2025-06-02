@@ -11,18 +11,13 @@ import my_social_media_project_backend.demo.utility.CookieUtils;
 import my_social_media_project_backend.demo.utility.JwtUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
-
-import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -80,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         CustomUserDetails userDetails = new CustomUserDetails(
                 userData.getId(),
-                userData.getAccountName(),
+                userData.getEmail(),
                 userData.getPassword(),
                 Collections.emptyList()
         );
