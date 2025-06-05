@@ -1,13 +1,15 @@
 FROM eclipse-temurin:17-jdk-alpine
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the jar file (replace with your actual JAR name)
-COPY target/*.jar app.jar
+# Copy source code
+COPY . .
 
-# Expose port (optional for local use)
+# Build the JAR
+RUN ./mvnw clean package -DskipTests
+
+# Copy the built JAR to app.jar
+RUN cp target/*.jar app.jar
+
 EXPOSE 8080
-
-# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
