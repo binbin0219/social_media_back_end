@@ -14,7 +14,7 @@ public class CookieUtils {
     private final String cookieName = "jwtToken";
 
     public void createCookie(HttpServletResponse response, String token, int maxAge) {
-        Cookie cookie = new Cookie("myToken", token);
+        Cookie cookie = new Cookie(cookieName, token);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
