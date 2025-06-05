@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,7 +24,10 @@ public class ChatMessageService {
         int pageNumber = offset / recordPerPage;
         PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
         Page<ChatMessageView> chatMessagePage = chatMessageRepository.findChatMessages(chatRoomId, pageable);
-        return chatMessagePage.getContent().reversed().stream().map(chatMessageView -> {
+        List<ChatMessageView> reversedChatMessageViews = new ArrayList<>(chatMessagePage.getContent());
+        Collections.reverse(reversedChatMessageViews);
+
+        return reversedChatMessageViews.stream().map(chatMessageView -> {
             return new ChatMessageDTO(
                     chatMessageView.getId(),
                     chatMessageView.getSender().getId(),
@@ -32,5 +37,6 @@ public class ChatMessageService {
                     chatMessageView.getCreateAt()
             );
         }).toList();
+
     }
 }

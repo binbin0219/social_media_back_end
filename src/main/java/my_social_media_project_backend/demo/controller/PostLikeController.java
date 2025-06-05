@@ -33,7 +33,7 @@ public class PostLikeController {
         String action = requestBody.get("action").toLowerCase();
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Object[]> result = postService.getPostAndUserByIdOrFail(postId, userDetails.getUserId());
-        Object[] row = result.getFirst();
+        Object[] row = result.get(0);
         Post post = (Post) row[0];
         User user = (User) row[1];
 
