@@ -2,14 +2,18 @@ FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Copy source code
+# Copy everything (including mvnw, pom.xml, src/)
 COPY . .
 
-# Build the JAR
+# Give execute permission to the Maven wrapper script
+RUN chmod +x mvnw
+
+# Build the JAR file
 RUN ./mvnw clean package -DskipTests
 
-# Copy the built JAR to app.jar
+# Rename the built JAR to app.jar
 RUN cp target/*.jar app.jar
 
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
