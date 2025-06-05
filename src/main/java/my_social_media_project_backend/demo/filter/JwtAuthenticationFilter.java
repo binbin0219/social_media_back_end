@@ -58,8 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = cookieUtils.extractTokenFromCookie(request);
         if (token == null || !jwtUtils.isTokenValid(token)) {
-            Cookie cookie = cookieUtils.createCookie("", 0);
-            response.addCookie(cookie);
+            cookieUtils.createCookie(response, "", 0);
             filterChain.doFilter(request, response);
             return;
         }
@@ -67,8 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Long userId = jwtUtils.getUserIdFromToken(token);
         User userData = userService.getByIdOrNull(userId);
         if(userData == null) {
-            Cookie cookie = cookieUtils.createCookie("", 0);
-            response.addCookie(cookie);
+            cookieUtils.createCookie(response, "", 0);
             filterChain.doFilter(request, response);
             return;
         }

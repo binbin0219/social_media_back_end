@@ -56,8 +56,7 @@ public class AuthController {
         if (validatedUser != null) {
             String token = jwtUtils.createToken(validatedUser.getId());
 
-            Cookie cookie = cookieUtils.createCookie(token, 60 * 60 * 24);
-            response.addCookie(cookie);
+            cookieUtils.createCookie(response, token, 60 * 60 * 24);
 
             return ResponseEntity.ok("Login Successful!");
         } else {
@@ -67,8 +66,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        Cookie cookie = cookieUtils.createCookie("", 0);
-        response.addCookie(cookie);
+        cookieUtils.createCookie(response, "", 0);
         return ResponseEntity.ok("Logged out successfully");
     }
 
