@@ -33,7 +33,6 @@ public class SecurityConfig {
 //            cookie.sameSite("None"); // Allow cross-origin cookie
 //            cookie.secure(true);    // IMPORTANT: false for localhost (true for HTTPS)
 //        });
-    System.out.println("allowed origin = " + List.of(allowedOrigin.split(",")));
         http.csrf(AbstractHttpConfigurer::disable)
             .exceptionHandling(exception -> exception
                     .accessDeniedHandler((request, response, accessDeniedException) -> {
