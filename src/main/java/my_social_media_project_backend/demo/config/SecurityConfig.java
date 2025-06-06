@@ -24,7 +24,7 @@ public class SecurityConfig {
     JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${cors.allowed-origins}")
-    private String allowedOrigins;
+    private String allowedOrigin;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,7 +33,7 @@ public class SecurityConfig {
 //            cookie.sameSite("None"); // Allow cross-origin cookie
 //            cookie.secure(true);    // IMPORTANT: false for localhost (true for HTTPS)
 //        });
-
+    System.out.println("allowed origin = " + List.of(allowedOrigin.split(",")));
         http.csrf(AbstractHttpConfigurer::disable)
             .exceptionHandling(exception -> exception
                     .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -54,7 +54,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(List.of(allowedOrigins.split(","))); // Frontend URL
+                config.setAllowedOrigins(List.of(allowedOrigin.split(","))); // Frontend URL
 //                config.setAllowedOriginPatterns(List.of("*"));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(List.of("*"));

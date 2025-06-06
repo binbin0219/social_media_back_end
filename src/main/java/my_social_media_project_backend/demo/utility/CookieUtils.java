@@ -22,7 +22,7 @@ public class CookieUtils {
 
         // Add cookie manually with SameSite=None
         String cookieHeader = String.format(
-                "%s=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                "%s=%s; Path=/; Max-Age=%d; Secure; SameSite=None",
                 cookie.getName(), cookie.getValue(), cookie.getMaxAge()
         );
 
