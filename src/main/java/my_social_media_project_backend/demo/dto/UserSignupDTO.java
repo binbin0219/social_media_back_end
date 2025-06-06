@@ -10,8 +10,8 @@ public class UserSignupDTO {
     @NotBlank(message = "Username is required")
     @Size(min = 6, max = 20, message = "Username must be between 6 and 20 characters")
     @Pattern(
-            regexp = "^[A-Za-z0-9]{6,20}$",
-            message = "Username can only contain letters and numbers (no spaces or symbols)"
+            regexp = "^[\\p{L}0-9]{6,20}$",
+            message = "Username can only contain letters (any language) and numbers, 6–20 characters"
     )
     private String username;
 

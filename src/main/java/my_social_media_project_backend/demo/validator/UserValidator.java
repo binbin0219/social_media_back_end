@@ -26,8 +26,8 @@ public class UserValidator {
             throw new ValidationException("username", "Username must be between 6 and 20 characters");
         }
 
-        if (!username.matches("^[a-zA-Z0-9_]+$")) {
-            throw new ValidationException("username", "Username can only contain letters, numbers, and underscores");
+        if (!username.matches("^\\p{L}[\\p{L}0-9_]*$")) {
+            throw new ValidationException("username", "Username can only contain letters (any language), numbers, and underscores");
         }
     }
 
