@@ -33,6 +33,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostAttachment> attachments = new ArrayList<>();
+
     @OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private PostStatistic postStatistic;
 
@@ -66,5 +69,21 @@ public class Post {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public List<PostAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<PostAttachment> attachments) {
+        this.attachments = attachments;
+    }
+
+    public PostStatistic getPostStatistic() {
+        return postStatistic;
+    }
+
+    public void setPostStatistic(PostStatistic postStatistic) {
+        this.postStatistic = postStatistic;
     }
 }

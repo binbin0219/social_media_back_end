@@ -27,7 +27,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             COALESCE(ps.commentCount, 0),
             CASE WHEN COUNT(pl.id) > 0 THEN true ELSE false END,
             p.createAt,
-            :userId
+            :userId,
+            null
         )
         FROM Post p
         LEFT JOIN PostStatistic ps ON p.id = ps.post.id
@@ -65,7 +66,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 0,
                 null,
                 p.user.createAt
-            )
+            ),
+            null
         )
         FROM Post p
         LEFT JOIN PostStatistic ps ON p.id = ps.post.id

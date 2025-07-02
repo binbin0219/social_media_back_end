@@ -33,7 +33,7 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PostWithUserIdDTO> createPost(@RequestBody @Valid PostCreateDTO postCreateDTO) {
+    public ResponseEntity<PostWithUserIdDTO> createPost(@ModelAttribute @Valid PostCreateDTO postCreateDTO) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getByIdOrFails(userDetails.getUserId());
         PostWithUserIdDTO createdPost = postService.create(postCreateDTO, user);
@@ -59,22 +59,19 @@ public class PostController {
         return ResponseEntity.ok(postDTO);
     }
 
-    @PostMapping("/update")
+    @PostMapping("/update/{postId}")
     public ResponseEntity<Object> update(
-            @RequestBody Map<String, Object> requestBody
+            @PathVariable Long postId,
+            @RequestBody @Valid PostCreateDTO requestBody
     ) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long postId = Long.parseLong(requestBody.get("postId").toString());
         Post post = postService.getPostByIdOrFail(postId);
         if(!Objects.equals(post.getUser().getId(), userDetails.getUserId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not able to edit this post");
         }
 
-        String newTitle = (String) requestBody.get("title");
-        String newContent = (String) requestBody.get("content");
-        if(newTitle.isEmpty() || newContent.isEmpty()) {
-            return ResponseEntity.badRequest().body("Post content or title cannot be empty");
-        }
+        String newTitle = requestBody.getTitle();
+        String newContent = requestBody.getContent();
         postService.updatePost(post, newTitle, newContent);
 
         Map<String, String> response = new HashMap<>();

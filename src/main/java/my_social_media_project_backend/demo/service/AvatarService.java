@@ -64,7 +64,7 @@ public class AvatarService {
 
     public String createAvatar(Long userId, String gender) {
         try {
-            String desiredPath = r2StorageService.generateUserAvatarPath(userId);
+            String desiredPath = generateUserAvatarPath(userId);
             String avatarSvg = getRandomAvatarSvgFromAvatarIo(gender);
             byte[] avatarPng = BatikTranscoderUtils.convertSvgToPng(avatarSvg);
             return r2StorageService.uploadFile(desiredPath, avatarPng);
@@ -86,8 +86,12 @@ public class AvatarService {
         }
 
         byte[] imageBytes = Base64.getDecoder().decode(avatarBase64);
-        String desiredPath = r2StorageService.generateUserAvatarPath(userId);
+        String desiredPath = generateUserAvatarPath(userId);
         return r2StorageService.uploadFile(desiredPath, imageBytes);
+    }
+
+    public String generateUserAvatarPath(Long userId) {
+        return String.format("user/%d/avatar/avatar.png", userId);
     }
 
     private <T> T getRandomElement(List<T> list) {

@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo;
 
+import my_social_media_project_backend.demo.exception.MaximumPostAttachmentException;
 import my_social_media_project_backend.demo.exception.emailExistedException;
 import my_social_media_project_backend.demo.exception.PostNotFoundException;
 import my_social_media_project_backend.demo.exception.UserNotFoundException;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<String> handlePostNotFoundException(PostNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MaximumPostAttachmentException.class)
+    public ResponseEntity<String> handleMaximumPostAttachmentException(MaximumPostAttachmentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
