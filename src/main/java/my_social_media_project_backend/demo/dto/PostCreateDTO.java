@@ -12,7 +12,10 @@ public class PostCreateDTO {
 
     @NotNull(message = "Content is required")
     @Size(max = 2500 , message = "Content cannot exceed 2500 letters")
-    @Pattern(regexp = ".*\\S.*", message = "Title cannot be empty or whitespace only")
+    @Pattern(
+            regexp = "(?s).*\\S.*",
+            message = "Content cannot be empty or whitespace only"
+    )
     private String content;
 
     @NotNull(message = "Title is required")
