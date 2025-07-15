@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.PostCreateDTO;
@@ -9,6 +10,7 @@ import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.service.PostService;
 import my_social_media_project_backend.demo.service.UserService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -83,20 +85,15 @@ public class PostController {
     public ResponseEntity<Object> delete(
             @RequestParam Long postId
     ) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long postUserId = postService.getPostUserId(postId);
-        if(postUserId == null) {
+        try {
+            postService.delete(postId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Post deleted successfully");
+            return ResponseEntity.ok().body(response);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not able to delete this post");
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
         }
-
-        if(!Objects.equals(postUserId, userDetails.getUserId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not able to delete this post");
-        }
-
-        postService.delete(postId);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Post deleted successfully");
-        return ResponseEntity.ok().body(response);
     }
 }

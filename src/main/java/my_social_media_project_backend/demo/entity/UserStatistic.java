@@ -25,6 +25,12 @@ public class UserStatistic {
     @Column(name = "friend_count" , nullable = false)
     private Long friendCount = 0L;
 
+    @Column(name = "post_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long postCount = 0L;
+
+    @Column(name = "like_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long likeCount = 0L;
+
     public Long getUserId() {
         return userId;
     }
@@ -71,5 +77,21 @@ public class UserStatistic {
 
     public void setNewNotificationCount(Long newNotificationCount) {
         this.newNotificationCount = newNotificationCount;
+    }
+
+    public Long getPostCount() {
+        return postCount;
+    }
+
+    public void setPostCount(Long postCount) {
+        this.postCount = postCount;
+    }
+
+    public Long getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
     }
 }

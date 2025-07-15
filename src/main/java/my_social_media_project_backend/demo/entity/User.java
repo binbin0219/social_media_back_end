@@ -39,6 +39,9 @@ public class User {
     @Column(name = "password", length = 200)
     private String password;
 
+    @Column
+    private String description;
+
     @Column(name = "occupation", length = 50)
     private String occupation;
 
@@ -269,5 +272,13 @@ public class User {
 
     public void setChatMessages(List<ChatMessage> chatMessages) {
         this.chatMessages = chatMessages;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -11,6 +11,7 @@ public class UserDTO <T> {
     private String username;
     private String firstName;
     private String lastName;
+    private String description;
     private String occupation;
     private JsonNode phoneNumber;
     private String region;
@@ -30,6 +31,7 @@ public class UserDTO <T> {
             String username,
             String firstName,
             String lastName,
+            String description,
             String occupation,
             T phoneNumber,
             String region,
@@ -48,6 +50,7 @@ public class UserDTO <T> {
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.description = description;
         this.occupation = occupation;
         this.region = region;
         this.relationshipStatus = relationshipStatus;
@@ -203,5 +206,13 @@ public class UserDTO <T> {
 
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

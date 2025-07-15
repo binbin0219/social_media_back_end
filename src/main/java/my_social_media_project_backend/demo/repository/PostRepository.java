@@ -54,6 +54,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 p.user.username,
                 p.user.firstName,
                 p.user.lastName,
+                p.user.description,
                 p.user.occupation,
                 CAST(p.user.phoneNumber AS string),
                 p.user.region,

@@ -1,6 +1,7 @@
 package my_social_media_project_backend.demo.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.*;
 import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.PostAttachment;
@@ -12,14 +13,19 @@ import my_social_media_project_backend.demo.repository.PostRepository;
 import my_social_media_project_backend.demo.utility.ContentTypeUtils;
 import my_social_media_project_backend.demo.utility.FormatUtils;
 import my_social_media_project_backend.demo.utility.StoragePathUtils;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,12 +34,14 @@ public class PostService {
     private final PostStatisticsService postStatisticsService;
     private final R2StorageService r2StorageService;
     private final PostAttachmentRepository postAttachmentRepository;
+    private final UserStatisticService userStatisticService;
 
-    public PostService(PostRepository postRepository, PostStatisticsService postStatisticsService, R2StorageService r2StorageService, PostAttachmentRepository postAttachmentRepository) {
+    public PostService(PostRepository postRepository, PostStatisticsService postStatisticsService, R2StorageService r2StorageService, PostAttachmentRepository postAttachmentRepository, UserStatisticService userStatisticService) {
         this.postRepository = postRepository;
         this.postStatisticsService = postStatisticsService;
         this.r2StorageService = r2StorageService;
         this.postAttachmentRepository = postAttachmentRepository;
+        this.userStatisticService = userStatisticService;
     }
 
     public PostWithUserIdDTO create(PostCreateDTO postCreateDTO, User user) {
@@ -60,6 +68,7 @@ public class PostService {
         final Post finalPost = postRepository.save(post);
 
         postStatisticsService.create(post);
+        userStatisticService.incrementPostCount(user.getId());
         return new PostWithUserIdDTO(
                 post.getId(),
                 post.getTitle(),
@@ -153,8 +162,20 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public void delete(Long postId) {
+    public void delete(Long postId) throws EntityNotFoundException, BadRequestException {
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long postUserId = getPostUserId(postId);
+        if(postUserId == null) {
+            throw new EntityNotFoundException("Failed to delete post: post not found");
+        }
+
+        if(!Objects.equals(postUserId, userDetails.getUserId())) {
+            throw new BadRequestException("Failed to delete post: user not author of the post");
+        }
+
         r2StorageService.deleteFolder(StoragePathUtils.getPostDirLinkOnR2(postId));
         postRepository.deleteById(postId);
+        userStatisticService.decrementPostCount(postUserId);
     }
 }

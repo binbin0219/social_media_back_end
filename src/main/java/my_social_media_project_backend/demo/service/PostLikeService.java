@@ -21,12 +21,14 @@ public class PostLikeService {
     private final PostStatisticsService postStatisticsService;
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserStatisticService userStatisticService;
 
-    public PostLikeService(PostLikeRepository postLikeRepository, PostStatisticsService postStatisticsService, NotificationService notificationService, SimpMessagingTemplate messagingTemplate) {
+    public PostLikeService(PostLikeRepository postLikeRepository, PostStatisticsService postStatisticsService, NotificationService notificationService, SimpMessagingTemplate messagingTemplate, UserStatisticService userStatisticService) {
         this.postLikeRepository = postLikeRepository;
         this.postStatisticsService = postStatisticsService;
         this.notificationService = notificationService;
         this.messagingTemplate = messagingTemplate;
+        this.userStatisticService = userStatisticService;
     }
 
     public PostLike likePost(Post post, User user) {
@@ -37,6 +39,7 @@ public class PostLikeService {
         postLike.setUser(user);
         PostLike savedPostLike = postLikeRepository.save(postLike);
         postStatisticsService.incrementLikeCount(post.getId());
+        userStatisticService.incrementLikeCount(post.getUser().getId());
 
         if(!isLikeByAuthor(post.getUser().getId(), user.getId())) {
             notificationService.sendNotification(
@@ -60,8 +63,9 @@ public class PostLikeService {
     public void unlikePost(Post post, User user) {
         PostLike postLike = postLikeRepository.findByPostAndUser(post, user)
                 .orElseThrow(()-> new EntityNotFoundException("Post like not found"));
-        postStatisticsService.decrementLikeCount(post.getId());
         postLikeRepository.delete(postLike);
+        postStatisticsService.decrementLikeCount(post.getId());
+        userStatisticService.decrementLikeCount(post.getUser().getId());
 
         if(!isLikeByAuthor(post.getUser().getId(), user.getId())) {
             // Delete the like notification on post author side

@@ -22,6 +22,18 @@ public interface UserStatisticRepository extends JpaRepository<UserStatistic, Lo
     void incrementSeenNotificationCount(@Param("userId") Long userId);
 
     @Modifying
+    @Query("UPDATE UserStatistic us SET us.newNotificationCount = us.newNotificationCount + 1 WHERE us.userId = :userId")
+    void incrementNewNotificationCount(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE UserStatistic us SET us.postCount = us.postCount + 1 WHERE us.userId = :userId")
+    void incrementPostCount(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE UserStatistic us SET us.likeCount = us.likeCount + 1 WHERE us.userId = :userId")
+    void incrementLikeCount(@Param("userId") Long userId);
+
+    @Modifying
     @Query("UPDATE UserStatistic us SET us.friendCount = us.friendCount - 1 WHERE us.userId = :userId")
     void decrementFriendCount(@Param("userId") Long userId);
 
@@ -38,10 +50,14 @@ public interface UserStatisticRepository extends JpaRepository<UserStatistic, Lo
     void decrementSeenNotificationCount(@Param("userId") Long userId);
 
     @Modifying
-    @Query("Update UserStatistic us SET us.newNotificationCount = 0 WHERE us.userId = :userId")
-    void clearNewNotificationCount(@Param("userId") Long userId);
+    @Query("UPDATE UserStatistic us SET us.postCount = us.postCount - 1 WHERE us.userId = :userId")
+    void decrementPostCount(@Param("userId") Long userId);
 
     @Modifying
-    @Query("UPDATE UserStatistic us SET us.newNotificationCount = us.newNotificationCount + 1 WHERE us.userId = :userId")
-    void incrementNewNotificationCount(@Param("userId") Long userId);
+    @Query("UPDATE UserStatistic us SET us.likeCount = us.likeCount - 1 WHERE us.userId = :userId")
+    void decrementLikeCount(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("Update UserStatistic us SET us.newNotificationCount = 0 WHERE us.userId = :userId")
+    void clearNewNotificationCount(@Param("userId") Long userId);
 }

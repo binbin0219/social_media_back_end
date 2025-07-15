@@ -3,6 +3,7 @@ import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.*;
 import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.entity.UserStatistic;
 import my_social_media_project_backend.demo.exception.emailExistedException;
 import my_social_media_project_backend.demo.exception.UserNotFoundException;
 import my_social_media_project_backend.demo.repository.UserRepository;
@@ -24,11 +25,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final AvatarService avatarService;
     private final R2StorageService r2StorageService;
+    private final UserStatisticService userStatisticService;
 
-    public UserService(UserRepository userRepository, AvatarService avatarService, R2StorageService r2StorageService) {
+    public UserService(UserRepository userRepository, AvatarService avatarService, R2StorageService r2StorageService, UserStatisticService userStatisticService) {
         this.userRepository = userRepository;
         this.avatarService = avatarService;
         this.r2StorageService = r2StorageService;
+        this.userStatisticService = userStatisticService;
     }
 
     public User validateUser(String email, String password) {
@@ -65,7 +68,8 @@ public class UserService {
         newUser.setGender(userSignupDTO.getGender());
         newUser = userRepository.save(newUser);
         newUser.setAvatar(avatarService.createAvatar(newUser.getId(), newUser.getGender()));
-        return userRepository.save(newUser);
+        userStatisticService.create(newUser);
+        return newUser;
     }
 
     public String getOrCreateUserAvatar(User user) {
