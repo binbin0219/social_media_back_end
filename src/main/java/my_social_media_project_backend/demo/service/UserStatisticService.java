@@ -77,6 +77,11 @@ public class UserStatisticService {
 
     @Transactional
     public void decrementLikeCount(Long userId) {
-        userStatisticRepository.decrementLikeCount(userId);
+        userStatisticRepository.decrementLikeCount(userId, 1L);
+    }
+
+    @Transactional
+    public void decrementLikeCount(Long userId, Long count) {
+        userStatisticRepository.decrementLikeCount(userId, count);
     }
 }

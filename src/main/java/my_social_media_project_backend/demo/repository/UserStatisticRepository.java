@@ -54,8 +54,8 @@ public interface UserStatisticRepository extends JpaRepository<UserStatistic, Lo
     void decrementPostCount(@Param("userId") Long userId);
 
     @Modifying
-    @Query("UPDATE UserStatistic us SET us.likeCount = us.likeCount - 1 WHERE us.userId = :userId")
-    void decrementLikeCount(@Param("userId") Long userId);
+    @Query("UPDATE UserStatistic us SET us.likeCount = us.likeCount - :count WHERE us.userId = :userId")
+    void decrementLikeCount(@Param("userId") Long userId, @Param("count") Long count);
 
     @Modifying
     @Query("Update UserStatistic us SET us.newNotificationCount = 0 WHERE us.userId = :userId")

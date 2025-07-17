@@ -5,6 +5,7 @@ import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.*;
 import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.PostAttachment;
+import my_social_media_project_backend.demo.entity.PostStatistic;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.exception.MaximumPostAttachmentException;
 import my_social_media_project_backend.demo.exception.PostNotFoundException;
@@ -17,8 +18,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -174,8 +173,10 @@ public class PostService {
             throw new BadRequestException("Failed to delete post: user not author of the post");
         }
 
+        PostStatistic postStatistic = postStatisticsService.getByPostId(postId);
         r2StorageService.deleteFolder(StoragePathUtils.getPostDirLinkOnR2(postId));
         postRepository.deleteById(postId);
         userStatisticService.decrementPostCount(postUserId);
+        userStatisticService.decrementLikeCount(postUserId, postStatistic.getLikeCount());
     }
 }

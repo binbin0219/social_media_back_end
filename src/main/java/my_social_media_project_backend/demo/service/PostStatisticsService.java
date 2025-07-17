@@ -19,6 +19,10 @@ public class PostStatisticsService {
         postStatisticsRepository.save(postStatistic);
     }
 
+    public PostStatistic getByPostId(Long postId) {
+        return postStatisticsRepository.findById(postId).orElse(null);
+    }
+
     @Transactional
     public void incrementLikeCount(Long postId) {
         postStatisticsRepository.incrementLikeCount(postId);

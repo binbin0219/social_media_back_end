@@ -20,9 +20,11 @@ public class UserDTO <T> {
     private String avatar;
     private String coverUrl;
     private FriendshipDTO friendship;
-    private long friendCount;
-    private long newNotificationCount;
+    private Long friendCount;
+    private Long newNotificationCount;
     private Long unreadChatMessageCount;
+    private Long postCount;
+    private Long likeCount;
     private LocalDateTime createAt;
 
     public UserDTO(
@@ -40,9 +42,11 @@ public class UserDTO <T> {
             String avatar,
             String coverUrl,
             FriendshipDTO friendship,
-            long friendCount,
-            long newNotificationCount,
+            Long friendCount,
+            Long newNotificationCount,
             Long unreadChatMessageCount,
+            Long postCount,
+            Long likeCount,
             LocalDateTime createAt
     ) {
         this.id = id;
@@ -61,6 +65,8 @@ public class UserDTO <T> {
         this.friendCount = friendCount;
         this.newNotificationCount = newNotificationCount;
         this.unreadChatMessageCount = unreadChatMessageCount;
+        this.postCount = postCount;
+        this.likeCount = likeCount;
         this.createAt = createAt;
 
         if(phoneNumber != null) {
@@ -128,11 +134,11 @@ public class UserDTO <T> {
         return createAt;
     }
 
-    public long getFriendCount() {
+    public Long getFriendCount() {
         return friendCount;
     }
 
-    public long getNewNotificationCount() {
+    public Long getNewNotificationCount() {
         return newNotificationCount;
     }
 
@@ -214,5 +220,21 @@ public class UserDTO <T> {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getPostCount() {
+        return postCount;
+    }
+
+    public void setPostCount(Long postCount) {
+        this.postCount = postCount;
+    }
+
+    public Long getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
     }
 }

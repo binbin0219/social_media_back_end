@@ -67,8 +67,15 @@ public class UserService {
         newUser.setPassword(PasswordUtil.encodePassword(userSignupDTO.getPassword()));
         newUser.setGender(userSignupDTO.getGender());
         newUser = userRepository.save(newUser);
-        newUser.setAvatar(avatarService.createAvatar(newUser.getId(), newUser.getGender()));
         userStatisticService.create(newUser);
+
+        // Try to create avatar but ignore failure
+        try {
+            newUser.setAvatar(avatarService.createAvatar(newUser.getId(), newUser.getGender()));
+        } catch (Exception e) {
+            System.err.println("Failed to create avatar for user " + newUser.getId() + ": " + e.getMessage());
+        }
+
         return newUser;
     }
 
@@ -91,19 +98,18 @@ public class UserService {
             throws IOException,
             UnsupportedMediaTypeException
     {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userRepository.findById(userDetails.getUserId()).orElseThrow(() -> new UserNotFoundException("User not found while updating cover"));
-        String coverMimeType = "image/png";
-        String coverPathInR2 = String.format("user/%d/cover/cover.%s", userDetails.getUserId(), coverMimeType.replace("image/", ""));
-
-        if(file.isEmpty()) {
-            throw new FileNotFoundException("Cover image is missing while updating user's cover");
+        if(file.isEmpty() || file.getContentType() == null) {
+            throw new FileNotFoundException("Cover image or content type is missing while updating user's cover");
         }
 
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow(() -> new UserNotFoundException("User not found while updating cover"));
         String receivedType = file.getContentType();
-        if(!Objects.equals(file.getContentType(), coverMimeType)) {
+        String coverPathInR2 = String.format("user/%d/cover/cover.%s", userDetails.getUserId(), receivedType.replace("image/", ""));
+
+        if(!receivedType.startsWith("image/")) {
             throw new UnsupportedMediaTypeException(
-                String.format("Expected type %s when updating user cover but received type %s", coverMimeType, receivedType)
+                String.format("Expected type image when updating user cover but received type %s", receivedType)
             );
         }
 
@@ -146,5 +152,9 @@ public class UserService {
         int pageNumber = offset / recordPerPage;
         PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.ASC, "username"));
         return userRepository.findByUsername(username, pageable);
+    }
+
+    public List<UserRecommendationDTO> getRecommendedUsers(Long userId, int limit) {
+        return userRepository.findRecommendedUsers(userId, limit);
     }
 }

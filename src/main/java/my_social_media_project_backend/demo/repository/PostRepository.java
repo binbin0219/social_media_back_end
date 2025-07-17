@@ -63,8 +63,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 p.user.avatar,
                 null,
                 null,
-                0,
-                0,
+                null,
+                null,
+                null,
+                null,
                 null,
                 p.user.createAt
             ),

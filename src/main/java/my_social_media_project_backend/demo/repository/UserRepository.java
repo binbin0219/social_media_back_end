@@ -2,6 +2,7 @@ package my_social_media_project_backend.demo.repository;
 
 import my_social_media_project_backend.demo.dto.SearchUserDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
+import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.projection.UserSummary;
 import org.springframework.data.domain.Pageable;
@@ -38,8 +39,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 COALESCE(fs.status, fs2.status, NULL),
                 COALESCE(fs.createAt, fs2.createAt, NULL)
             ),
-            0,
-            0,
+            null,
+            null,
+            null,
+            null,
             null,
             u.createAt
         )
@@ -71,6 +74,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             COALESCE(us.friendCount, 0),
             COALESCE(us.newNotificationCount, 0),
             COALESCE(SUM(crm.unreadCount), 0),
+            COALESCE(us.postCount, 0),
+            COALESCE(us.likeCount, 0),
             u.createAt
         )
         FROM User u
@@ -78,8 +83,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
         LEFT JOIN ChatRoomMember crm ON crm.user.id = :userId
         WHERE u.id = :userId
         GROUP BY u.id, u.country, u.username, u.firstName, u.lastName, u.occupation,
-                 u.phoneNumber, u.region, u.relationshipStatus, u.gender, u.avatar, 
-                 us.friendCount, us.newNotificationCount, u.createAt
+                 u.phoneNumber, u.region, u.relationshipStatus, u.gender, u.avatar,
+                 us.friendCount, us.newNotificationCount, u.createAt, us.postCount,
+                 us.likeCount
     """)
     Optional<UserDTO> getCurrentUserById(@Param("userId") Long userId);
 
@@ -97,5 +103,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
         WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))
     """)
     List<SearchUserDTO> findByUsername(@Param("username") String username, Pageable pageable);
+
+    @Query(value = """
+        SELECT u.id, u.username, u.avatar
+        FROM users u
+        WHERE u.id != :userId
+          AND u.id NOT IN (
+              SELECT CASE
+                  WHEN f.user_id = :userId THEN f.friend_id
+                  ELSE f.user_id
+              END
+              FROM friendships f
+              WHERE (f.user_id = :userId OR f.friend_id = :userId)
+          )
+        ORDER BY RANDOM()
+        LIMIT :limit;
+    """, nativeQuery = true)
+    List<UserRecommendationDTO> findRecommendedUsers(@Param("userId") Long userId, @Param("limit") int limit);
 
 }

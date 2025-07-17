@@ -3,10 +3,7 @@ package my_social_media_project_backend.demo.controller;
 import jakarta.activation.UnsupportedDataTypeException;
 import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
-import my_social_media_project_backend.demo.dto.SearchUserDTO;
-import my_social_media_project_backend.demo.dto.UserDTO;
-import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
+import my_social_media_project_backend.demo.dto.*;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.exception.ValidationException;
 import my_social_media_project_backend.demo.service.PostService;
@@ -126,5 +123,13 @@ public class UserController {
             response.put("error", "Something went wrong");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @GetMapping("/recommendations")
+    public List<UserRecommendationDTO> getRecommendations(
+            @RequestParam(defaultValue = "0") int limit
+    ) {
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getRecommendedUsers(user.getUserId(), limit);
     }
 }
