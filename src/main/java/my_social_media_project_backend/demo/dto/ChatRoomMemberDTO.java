@@ -1,18 +1,20 @@
 package my_social_media_project_backend.demo.dto;
 
+import java.time.LocalDateTime;
+
 public class ChatRoomMemberDTO {
     private String id;
     private String chatRoomId;
     private Long userId;
     private String username;
-    private String avatar;
+    private LocalDateTime userUpdatedAt;
 
-    public ChatRoomMemberDTO(String id, String chatRoomId, Long userId, String username, String avatar) {
+    public ChatRoomMemberDTO(String id, String chatRoomId, Long userId, String username, LocalDateTime userUpdatedAt) {
         this.id = id;
         this.chatRoomId = chatRoomId;
         this.userId = userId;
         this.username = username;
-        this.avatar = avatar;
+        this.userUpdatedAt = userUpdatedAt;
     }
 
     public String getId() {
@@ -39,12 +41,12 @@ public class ChatRoomMemberDTO {
         this.username = username;
     }
 
-    public String getAvatar() {
-        return avatar;
+    public LocalDateTime getUserUpdatedAt() {
+        return userUpdatedAt;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
+    public void setUserUpdatedAt(LocalDateTime userUpdatedAt) {
+        this.userUpdatedAt = userUpdatedAt;
     }
 
     public String getChatRoomId() {

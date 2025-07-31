@@ -93,8 +93,15 @@ public class UserController {
             if (dto.getLastName() != null) userValidator.validateLastName(dto.getLastName());
             if (dto.getGender() != null) userValidator.validateGender(dto.getGender());
             if (dto.getPhoneNumber() != null) userValidator.validatePhoneNumber(dto.getPhoneNumber().getFullNumber());
-            userValidator.validateCountry(dto.getCountry());
-            userValidator.validateRegion(dto.getRegion());
+            if(dto.getDescription() != null) {
+                dto.setDescription(userValidator.validateDes(dto.getDescription()));
+            }
+            if(dto.getCountry() != null) {
+                dto.setCountry(userValidator.validateCountry(dto.getCountry()));
+            }
+            if(dto.getRegion() != null) {
+                dto.setRegion(userValidator.validateRegion(dto.getRegion()));
+            }
             userValidator.validateOccupation(dto.getOccupation());
             userValidator.validateRelationshipStatus(dto.getRelationshipStatus());
             userService.updateUserDetails(currentUser.getUserId(), dto);

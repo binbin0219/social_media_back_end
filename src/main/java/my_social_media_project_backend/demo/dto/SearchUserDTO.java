@@ -1,14 +1,16 @@
 package my_social_media_project_backend.demo.dto;
 
+import java.time.LocalDateTime;
+
 public class SearchUserDTO {
     private Long id;
     private String username;
-    private String avatar;
+    private LocalDateTime updatedAt;
 
-    public SearchUserDTO(Long id, String username, String avatar) {
+    public SearchUserDTO(Long id, String username, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
-        this.avatar = avatar;
+        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -27,11 +29,11 @@ public class SearchUserDTO {
         this.username = username;
     }
 
-    public String getAvatar() {
-        return avatar;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -80,14 +80,15 @@ public class AvatarService {
         return "data:image/png;base64," + avatarBase64;
     }
 
-    public String updateUserAvatar(Long userId, String avatarBase64) {
+    public void updateUserAvatar(Long userId, String avatarBase64) {
         if (avatarBase64.contains(",")) {
             avatarBase64 = avatarBase64.split(",")[1];
         }
 
         byte[] imageBytes = Base64.getDecoder().decode(avatarBase64);
         String desiredPath = generateUserAvatarPath(userId);
-        return r2StorageService.uploadFile(desiredPath, imageBytes);
+        r2StorageService.uploadFile(desiredPath, imageBytes);
+        return;
     }
 
     public String generateUserAvatarPath(Long userId) {

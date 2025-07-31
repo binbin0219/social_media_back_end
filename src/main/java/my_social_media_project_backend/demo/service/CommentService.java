@@ -75,8 +75,8 @@ public class CommentService {
                 comment.getContent(),
                 new PostCommentUserDTO(
                         comment.getUser().getId(),
-                        comment.getUser().getAvatar(),
-                        comment.getUser().getUsername()
+                        comment.getUser().getUsername(),
+                        comment.getUser().getUpdatedAt()
                 ),
                 comment.getCreateAt()
         );

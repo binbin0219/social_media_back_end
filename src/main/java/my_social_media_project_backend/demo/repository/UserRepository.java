@@ -31,8 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             u.region,
             u.relationshipStatus,
             u.gender,
-            u.avatar,
-            u.coverUrl,
             new my_social_media_project_backend.demo.dto.FriendshipDTO(
                 COALESCE(fs.userId, fs2.userId, NULL),
                 COALESCE(fs.friendId, fs2.friendId, NULL),
@@ -44,7 +42,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             null,
             null,
             null,
-            u.createAt
+            u.createAt,
+            u.updatedAt
         )
         FROM User u
         LEFT JOIN Friendship fs ON
@@ -68,36 +67,35 @@ public interface UserRepository extends JpaRepository<User, Long> {
             u.region,
             u.relationshipStatus,
             u.gender,
-            u.avatar,
-            u.coverUrl,
             null,
             COALESCE(us.friendCount, 0),
             COALESCE(us.newNotificationCount, 0),
             COALESCE(SUM(crm.unreadCount), 0),
             COALESCE(us.postCount, 0),
             COALESCE(us.likeCount, 0),
-            u.createAt
+            u.createAt,
+            u.updatedAt
         )
         FROM User u
         LEFT JOIN UserStatistic us ON us.userId = :userId
         LEFT JOIN ChatRoomMember crm ON crm.user.id = :userId
         WHERE u.id = :userId
         GROUP BY u.id, u.country, u.username, u.firstName, u.lastName, u.occupation,
-                 u.phoneNumber, u.region, u.relationshipStatus, u.gender, u.avatar,
+                 u.phoneNumber, u.region, u.relationshipStatus, u.gender,
                  us.friendCount, us.newNotificationCount, u.createAt, us.postCount,
                  us.likeCount
     """)
     Optional<UserDTO> getCurrentUserById(@Param("userId") Long userId);
 
 
-    @Query("SELECT u.username AS username, u.avatar AS avatar, u.id AS id FROM User u WHERE u.id IN :ids")
+    @Query("SELECT u.username AS username, u.id AS id, u.updatedAt AS updatedAt FROM User u WHERE u.id IN :ids")
     List<UserSummary> findUserSummariesByIds(@Param("ids") List<Long> ids);
 
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.SearchUserDTO(
             u.id,
             u.username,
-            u.avatar
+            u.updatedAt
         )
         FROM User u
         WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))
@@ -105,7 +103,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<SearchUserDTO> findByUsername(@Param("username") String username, Pageable pageable);
 
     @Query(value = """
-        SELECT u.id, u.username, u.avatar
+        SELECT u.id, u.username, u.updated_at
         FROM users u
         WHERE u.id != :userId
           AND u.id NOT IN (

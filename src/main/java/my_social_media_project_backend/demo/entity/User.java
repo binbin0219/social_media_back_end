@@ -6,12 +6,15 @@ import jakarta.validation.constraints.Size;
 import my_social_media_project_backend.demo.dto.PhoneNumberDTO;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
 public class User {
 
@@ -39,7 +42,7 @@ public class User {
     @Column(name = "password", length = 200)
     private String password;
 
-    @Column
+    @Column(length = 700)
     private String description;
 
     @Column(name = "occupation", length = 50)
@@ -58,14 +61,12 @@ public class User {
     @Column(name = "phone_number", columnDefinition = "jsonb")
     private PhoneNumberDTO phoneNumber;
 
-    @Column(name = "avatar")
-    private String avatar;
-
-    @Column(name = "cover_url")
-    private String coverUrl;
-
     @Column(name = "create_at")
     private LocalDateTime createAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
@@ -190,22 +191,6 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getCoverUrl() {
-        return coverUrl;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
-    }
-
     public LocalDateTime getCreateAt() {
         return createAt;
     }
@@ -213,6 +198,10 @@ public class User {
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
     }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     public List<Post> getPosts() {
         return posts;

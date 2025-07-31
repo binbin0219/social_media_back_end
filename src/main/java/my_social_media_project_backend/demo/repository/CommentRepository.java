@@ -27,8 +27,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             c.content,
             new my_social_media_project_backend.demo.dto.PostCommentUserDTO(
                 c.user.id,
-                c.user.avatar,
-                c.user.username
+                c.user.username,
+                c.user.updatedAt
             ),
             c.createAt
         )

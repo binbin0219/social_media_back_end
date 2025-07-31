@@ -6,6 +6,7 @@ public class UserProfileUpdateDTO {
     private String username;
     private String firstName;
     private String lastName;
+    private String description;
     private String gender;
     private String country;
     private String region;
@@ -29,6 +30,8 @@ public class UserProfileUpdateDTO {
         return lastName;
     }
 
+    public String getDescription() { return description; }
+
     public String getGender() {
         return gender;
     }
@@ -51,5 +54,49 @@ public class UserProfileUpdateDTO {
 
     public PhoneNumberDTO getPhoneNumber() {
         return phoneNumber;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setRelationshipStatus(String relationshipStatus) {
+        this.relationshipStatus = relationshipStatus;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public void setPhoneNumber(PhoneNumberDTO phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

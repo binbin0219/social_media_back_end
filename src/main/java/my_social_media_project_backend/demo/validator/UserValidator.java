@@ -2,6 +2,8 @@ package my_social_media_project_backend.demo.validator;
 
 import my_social_media_project_backend.demo.exception.ValidationException;
 import my_social_media_project_backend.demo.repository.UserRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -53,12 +55,27 @@ public class UserValidator {
         }
 
         if (lastName.length() > 20) {
-            throw new ValidationException("lastName", "Last name must not more than 30 characters");
+            throw new ValidationException("lastName", "Last name must not more than 20 characters");
         }
 
         if (!lastName.matches("^[a-zA-Z ]+$")) {
             throw new ValidationException("lastName", "Last name must contain only letters and spaces");
         }
+    }
+
+    public String validateDes(String des) throws ValidationException {
+        if (des.trim().isEmpty()) {
+            return des.trim();
+        }
+
+        String sanitized = Jsoup.clean(des, Safelist.none());
+
+        int maxLength = 500;
+        if (sanitized.length() > maxLength) {
+            throw new ValidationException("Description", "Description must not exceed " + maxLength + " characters.");
+        }
+
+        return sanitized;
     }
 
     public void validateGender(String gender) throws ValidationException {
@@ -72,24 +89,16 @@ public class UserValidator {
         }
     }
 
-    public void validateCountry(String country) throws ValidationException {
-        if(country == null) return;
-
-        if (!country.trim().matches("^[a-zA-Z\\s'-]+$")) {
-            throw new ValidationException("country", "Country must contain only letters, spaces, apostrophes, or hyphens");
-        }
+    public String validateCountry(String country) throws ValidationException {
+        return Jsoup.clean(country, Safelist.none());
     }
 
-    public void validateRegion(String region) throws ValidationException {
-        if(region == null) return;
-
-        if (!region.trim().matches("^[\\p{L}\\s'-]+$")) {
-            throw new ValidationException("region", "Region must contain only letters, spaces, apostrophes, or hyphens");
-        }
+    public String validateRegion(String region) throws ValidationException {
+        return Jsoup.clean(region, Safelist.none());
     }
 
     public void validateRelationshipStatus(String status) throws ValidationException {
-        if(status == null) return;
+        if(status == null || status.trim().isEmpty()) return;
 
         Set<String> allowedStatuses = Set.of(
                 "Single",
@@ -108,7 +117,7 @@ public class UserValidator {
     }
 
     public void validateOccupation(String occupation) throws ValidationException {
-        if(occupation == null) return;
+        if(occupation == null || occupation.trim().isEmpty()) return;
 
         if (!occupation.trim().matches("^[a-zA-Z\\s'-]+$")) {
             throw new ValidationException("occupation", "Occupation must contain only letters, spaces, apostrophes, or hyphens");
@@ -116,14 +125,9 @@ public class UserValidator {
     }
 
     public void validatePhoneNumber(String phoneNumber) throws ValidationException {
-        if(phoneNumber == null) return;
-
-        if (phoneNumber.trim().isEmpty()) {
-            throw new ValidationException("phoneNumber", "Phone number is required");
-        }
+        if(phoneNumber == null || phoneNumber.trim().isEmpty()) return;
 
         String trimmed = phoneNumber.trim();
-
         if (!trimmed.matches("^\\+[0-9]{8,15}$")) {
             throw new ValidationException("phoneNumber", "Phone number must start with '+' and contain 8 to 15 digits");
         }

@@ -35,8 +35,8 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.FriendDTO(
             u.id,
-            u.avatar,
-            u.username
+            u.username,
+            u.updatedAt
         )
         FROM User u
         JOIN Friendship f ON

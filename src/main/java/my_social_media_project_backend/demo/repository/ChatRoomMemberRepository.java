@@ -23,7 +23,7 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
             crm.chatRoom.id,
             crm.user.id,
             crm.user.username,
-            crm.user.avatar
+            crm.user.updatedAt
         )
         FROM ChatRoomMember crm
         WHERE crm.chatRoom.id = :chatRoomId
@@ -36,7 +36,7 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
             crm.chatRoom.id,
             u.id,
             u.username,
-            u.avatar
+            u.updatedAt
         )
         FROM ChatRoomMember crm
         JOIN crm.user u

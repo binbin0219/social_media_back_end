@@ -150,7 +150,7 @@ public class ChatRoomService {
                         currentRoom.getId(),
                         member.getUser().getId(),
                         member.getUser().getUsername(),
-                        member.getUser().getAvatar()
+                        member.getUser().getUpdatedAt()
                 )).toList(),
                 room.getMessages().stream().map(message -> new ChatMessageDTO(
                         message.getId(),
@@ -180,7 +180,7 @@ public class ChatRoomService {
                         tempChatRoomId,
                         userSummary.getId(),
                         userSummary.getUsername(),
-                        userSummary.getAvatar()
+                        userSummary.getUpdatedAt()
                 )).toList();
 
         return new ChatRoomDTO(

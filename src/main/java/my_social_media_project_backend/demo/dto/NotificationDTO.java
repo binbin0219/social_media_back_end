@@ -8,8 +8,8 @@ public class NotificationDTO {
     private Long id;
     private Long recipientId;
     private Long senderId;
-    private String senderAvatar;
     private String senderUsername;
+    private LocalDateTime senderUpdatedAt;
     private Notification.Type type;
     private String content;
     private String link;
@@ -17,12 +17,12 @@ public class NotificationDTO {
     private Long targetId;
     private LocalDateTime createAt;
 
-    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderAvatar, String senderUsername, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createAt) {
+    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderUsername, LocalDateTime senderUpdatedAt, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createAt) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
-        this.senderAvatar = senderAvatar;
         this.senderUsername = senderUsername;
+        this.senderUpdatedAt = senderUpdatedAt;
         this.type = type;
         this.content = content;
         this.link = link;
@@ -95,12 +95,12 @@ public class NotificationDTO {
         this.createAt = createAt;
     }
 
-    public String getSenderAvatar() {
-        return senderAvatar;
+    public LocalDateTime getSenderUpdatedAt() {
+        return senderUpdatedAt;
     }
 
-    public void setSenderAvatar(String senderAvatar) {
-        this.senderAvatar = senderAvatar;
+    public void setSenderUpdatedAt(LocalDateTime senderUpdatedAt) {
+        this.senderUpdatedAt = senderUpdatedAt;
     }
 
     public String getSenderUsername() {

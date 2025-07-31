@@ -60,15 +60,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 p.user.region,
                 p.user.relationshipStatus,
                 p.user.gender,
-                p.user.avatar,
                 null,
                 null,
                 null,
                 null,
                 null,
                 null,
-                null,
-                p.user.createAt
+                p.user.createAt,
+                p.user.updatedAt
             ),
             null
         )

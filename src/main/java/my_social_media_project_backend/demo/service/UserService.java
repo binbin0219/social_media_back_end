@@ -71,23 +71,12 @@ public class UserService {
 
         // Try to create avatar but ignore failure
         try {
-            newUser.setAvatar(avatarService.createAvatar(newUser.getId(), newUser.getGender()));
+            avatarService.createAvatar(newUser.getId(), newUser.getGender());
         } catch (Exception e) {
             System.err.println("Failed to create avatar for user " + newUser.getId() + ": " + e.getMessage());
         }
 
         return newUser;
-    }
-
-    public String getOrCreateUserAvatar(User user) {
-        String avatarUrlFromDb = user.getAvatar();
-        if(avatarUrlFromDb == null) {
-            String replacedAvatarUrl = avatarService.createAvatar(user.getId(), user.getGender());
-            user.setAvatar(replacedAvatarUrl);
-            userRepository.save(user);
-            return replacedAvatarUrl;
-        }
-        return avatarUrlFromDb;
     }
 
     public UserDTO getCurrentUserById(Long id) {
@@ -114,7 +103,6 @@ public class UserService {
         }
 
         String coverPublicUrl = r2StorageService.uploadFile(coverPathInR2, file.getBytes());
-        user.setCoverUrl(coverPublicUrl);
         userRepository.save(user);
         return coverPublicUrl;
     }
@@ -128,13 +116,12 @@ public class UserService {
         }
 
         if (dto.getAvatar() != null) {
-            String avatarUrl = avatarService.updateUserAvatar(userId, dto.getAvatar());
-            long timestamp = System.currentTimeMillis();
-            user.setAvatar(avatarUrl + "?v=" + timestamp);
+            avatarService.updateUserAvatar(userId, dto.getAvatar());
         }
         if (dto.getUsername() != null) user.setUsername(dto.getUsername());
         if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
         if (dto.getLastName() != null) user.setLastName(dto.getLastName());
+        if (dto.getDescription() != null) user.setDescription(dto.getDescription());
         if (dto.getGender() != null) user.setGender(dto.getGender());
         if (dto.getPhoneNumber() != null) user.setPhoneNumber(dto.getPhoneNumber());
         if (dto.getCountry() != null) user.setCountry(dto.getCountry());

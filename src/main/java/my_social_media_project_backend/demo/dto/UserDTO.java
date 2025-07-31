@@ -17,8 +17,6 @@ public class UserDTO <T> {
     private String region;
     private String relationshipStatus;
     private String gender;
-    private String avatar;
-    private String coverUrl;
     private FriendshipDTO friendship;
     private Long friendCount;
     private Long newNotificationCount;
@@ -26,6 +24,7 @@ public class UserDTO <T> {
     private Long postCount;
     private Long likeCount;
     private LocalDateTime createAt;
+    private LocalDateTime updatedAt;
 
     public UserDTO(
             Long id,
@@ -39,15 +38,14 @@ public class UserDTO <T> {
             String region,
             String relationshipStatus,
             String gender,
-            String avatar,
-            String coverUrl,
             FriendshipDTO friendship,
             Long friendCount,
             Long newNotificationCount,
             Long unreadChatMessageCount,
             Long postCount,
             Long likeCount,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            LocalDateTime updatedAt
     ) {
         this.id = id;
         this.country = country;
@@ -59,8 +57,6 @@ public class UserDTO <T> {
         this.region = region;
         this.relationshipStatus = relationshipStatus;
         this.gender = gender;
-        this.avatar = avatar;
-        this.coverUrl = coverUrl;
         this.friendship = friendship;
         this.friendCount = friendCount;
         this.newNotificationCount = newNotificationCount;
@@ -68,6 +64,7 @@ public class UserDTO <T> {
         this.postCount = postCount;
         this.likeCount = likeCount;
         this.createAt = createAt;
+        this.updatedAt = updatedAt;
 
         if(phoneNumber != null) {
             this.phoneNumber = (phoneNumber instanceof JsonNode)
@@ -116,14 +113,6 @@ public class UserDTO <T> {
 
     public String getGender() {
         return gender;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public String getCoverUrl() {
-        return coverUrl;
     }
 
     public FriendshipDTO getFriendship() {
@@ -186,14 +175,6 @@ public class UserDTO <T> {
         this.gender = gender;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
-    }
-
     public void setFriendship(FriendshipDTO friendship) {
         this.friendship = friendship;
     }
@@ -236,5 +217,21 @@ public class UserDTO <T> {
 
     public void setLikeCount(Long likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public void setFriendCount(Long friendCount) {
+        this.friendCount = friendCount;
+    }
+
+    public void setNewNotificationCount(Long newNotificationCount) {
+        this.newNotificationCount = newNotificationCount;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

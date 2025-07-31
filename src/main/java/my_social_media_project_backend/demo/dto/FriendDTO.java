@@ -1,14 +1,16 @@
 package my_social_media_project_backend.demo.dto;
 
+import java.time.LocalDateTime;
+
 public class FriendDTO {
     private long id;
-    private String avatar;
     private String username;
+    private LocalDateTime updatedAt;
 
-    public FriendDTO(long id, String avatar, String username) {
+    public FriendDTO(long id, String username, LocalDateTime updatedAt) {
         this.id = id;
-        this.avatar = avatar;
         this.username = username;
+        this.updatedAt = updatedAt;
     }
 
     public long getId() {
@@ -19,14 +21,6 @@ public class FriendDTO {
         this.id = id;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -34,4 +28,8 @@ public class FriendDTO {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
