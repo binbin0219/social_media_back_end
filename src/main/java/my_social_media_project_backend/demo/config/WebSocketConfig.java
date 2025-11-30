@@ -28,7 +28,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOriginPatterns(allowedOrigins.split(","))
-                .setHandshakeHandler(customHandshakeHandler).withSockJS();
+        // For mobile
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .setHandshakeHandler(customHandshakeHandler);
+
+        // For web
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .setHandshakeHandler(customHandshakeHandler)
+                .withSockJS();
     }
 }
