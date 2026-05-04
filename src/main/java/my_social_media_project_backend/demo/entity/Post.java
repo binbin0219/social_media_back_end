@@ -1,10 +1,23 @@
 package my_social_media_project_backend.demo.entity;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import my_social_media_project_backend.demo.enums.PostType;
 
 @Entity
 @Table(name = "posts")
@@ -24,6 +37,9 @@ public class Post {
     @Column(name = "content", columnDefinition = "text")
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    private PostType type;
+
     @Column(name = "create_at")
     private final LocalDateTime createAt = LocalDateTime.now();
 
@@ -38,6 +54,9 @@ public class Post {
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private PostStatistic postStatistic;
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Poll poll;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -85,5 +104,21 @@ public class Post {
 
     public void setPostStatistic(PostStatistic postStatistic) {
         this.postStatistic = postStatistic;
+    }
+
+    public PostType getType() {
+        return type;
+    }
+
+    public void setType(PostType type) {
+        this.type = type;
+    }
+
+    public Poll getPoll() {
+        return poll;
+    }
+
+    public void setPoll(Poll poll) {
+        this.poll = poll;
     }
 }
