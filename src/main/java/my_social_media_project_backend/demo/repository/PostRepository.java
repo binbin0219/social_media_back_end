@@ -26,7 +26,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             COALESCE(ps.likeCount, 0),
             COALESCE(ps.commentCount, 0),
             CASE WHEN COUNT(pl.id) > 0 THEN true ELSE false END,
-            p.createAt,
+            p.createdAt,
             :userId,
             null
         )
@@ -34,7 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         LEFT JOIN PostStatistic ps ON p.id = ps.post.id
         LEFT JOIN PostLike pl ON p.id = pl.post.id AND pl.user.id = :currentUserId
         WHERE p.user.id = :userId
-        GROUP BY p.id, p.title, p.content, p.createAt, ps.likeCount, ps.commentCount
+        GROUP BY p.id, p.title, p.content, p.createdAt, ps.likeCount, ps.commentCount
     """)
     Page<PostWithUserIdDTO> getPostDTOByUserId(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId, Pageable pageable);
 
@@ -47,7 +47,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 WHEN COUNT(pl.id) > 0 THEN true
                 ELSE false
             END,
-            p.createAt,
+            p.createdAt,
             new my_social_media_project_backend.demo.dto.UserDTO(
                 p.user.id,
                 p.user.country,
@@ -66,7 +66,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 null,
                 null,
                 null,
-                p.user.createAt,
+                p.user.createdAt,
                 p.user.updatedAt
             ),
             null
@@ -74,7 +74,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         FROM Post p
         LEFT JOIN PostStatistic ps ON p.id = ps.post.id
         LEFT JOIN PostLike pl ON p.id = pl.post.id AND pl.user.id = :userId
-        GROUP BY p.id, ps.likeCount, ps.commentCount, p.createAt, p.user
+        GROUP BY p.id, ps.likeCount, ps.commentCount, p.createdAt, p.user
     """)
     Page<PostWithUserDTO> getPostWithUserDTO(@Param("userId") Long userId, Pageable pageable);
 

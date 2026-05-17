@@ -15,9 +15,9 @@ public class NotificationDTO {
     private String link;
     private boolean seen;
     private Long targetId;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
-    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderUsername, LocalDateTime senderUpdatedAt, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createAt) {
+    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderUsername, LocalDateTime senderUpdatedAt, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createdAt) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
@@ -28,7 +28,7 @@ public class NotificationDTO {
         this.link = link;
         this.seen = seen;
         this.targetId = targetId;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -88,11 +88,11 @@ public class NotificationDTO {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getSenderUpdatedAt() {

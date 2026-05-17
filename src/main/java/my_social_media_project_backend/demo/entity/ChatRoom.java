@@ -1,11 +1,21 @@
 package my_social_media_project_backend.demo.entity;
 
-import com.github.f4b6a3.ulid.UlidCreator;
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.github.f4b6a3.ulid.UlidCreator;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "chat_rooms")
@@ -37,8 +47,8 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ChatMessage> messages = new ArrayList<>();
 
-    @Column(name = "create_at")
-    private final LocalDateTime createAt = LocalDateTime.now();
+    @Column(name = "created_at")
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     @PrePersist
     public void prePersist() {
@@ -80,7 +90,7 @@ public class ChatRoom {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
     public List<ChatMessage> getMessages() {

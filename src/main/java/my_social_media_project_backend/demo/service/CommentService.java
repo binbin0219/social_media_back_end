@@ -65,7 +65,7 @@ public class CommentService {
 
     public Page<PostCommentDTO> getPostComments(Long postId, Integer offset, Integer recordPerPage) {
         int pageNumber = offset / recordPerPage;
-        Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
         return commentRepository.findPostComments(postId, pageable);
     }
 

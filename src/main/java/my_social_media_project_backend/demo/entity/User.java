@@ -1,17 +1,28 @@
 package my_social_media_project_backend.demo.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
-import my_social_media_project_backend.demo.dto.PhoneNumberDTO;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import my_social_media_project_backend.demo.dto.PhoneNumberDTO;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -61,8 +72,8 @@ public class User {
     @Column(name = "phone_number", columnDefinition = "jsonb")
     private PhoneNumberDTO phoneNumber;
 
-    @Column(name = "create_at")
-    private LocalDateTime createAt = LocalDateTime.now();
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     @LastModifiedDate
@@ -192,11 +203,11 @@ public class User {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }

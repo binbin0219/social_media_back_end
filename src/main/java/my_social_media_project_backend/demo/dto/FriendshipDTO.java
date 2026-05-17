@@ -8,13 +8,13 @@ public class FriendshipDTO {
     private final Long userId;
     private final Long friendId;
     private final Friendship.Status status;
-    private final LocalDateTime createAt;
+    private final LocalDateTime createdAt;
 
-    public FriendshipDTO(Long userId, Long friendId, Friendship.Status status, LocalDateTime createAt) {
+    public FriendshipDTO(Long userId, Long friendId, Friendship.Status status, LocalDateTime createdAt) {
         this.userId = userId;
         this.friendId = friendId;
         this.status = status;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
     }
 
     public Long getUserId() {
@@ -30,6 +30,6 @@ public class FriendshipDTO {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 }

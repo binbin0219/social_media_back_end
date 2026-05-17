@@ -23,7 +23,7 @@ public class UserDTO <T> {
     private Long unreadChatMessageCount;
     private Long postCount;
     private Long likeCount;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public UserDTO(
@@ -44,7 +44,7 @@ public class UserDTO <T> {
             Long unreadChatMessageCount,
             Long postCount,
             Long likeCount,
-            LocalDateTime createAt,
+            LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
         this.id = id;
@@ -63,7 +63,7 @@ public class UserDTO <T> {
         this.unreadChatMessageCount = unreadChatMessageCount;
         this.postCount = postCount;
         this.likeCount = likeCount;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
         this.updatedAt = updatedAt;
 
         if(phoneNumber != null) {
@@ -120,7 +120,7 @@ public class UserDTO <T> {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
     public Long getFriendCount() {
@@ -191,8 +191,8 @@ public class UserDTO <T> {
         this.unreadChatMessageCount = unreadChatMessageCount;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getDescription() {

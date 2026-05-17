@@ -26,14 +26,14 @@ public class Poll {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @OneToMany(mappedBy = "poll_id", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PollQuestion> questions;
 
-    @Column(name = "create_at", nullable = false)
-    private LocalDateTime createAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -60,18 +60,18 @@ public class Poll {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdateAt() {
-        return updateAt;
+        return updatedAt;
     }
 
-    public void setUpdateAt(LocalDateTime updateAt) {
-        this.updateAt = updateAt;
+    public void setUpdateAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

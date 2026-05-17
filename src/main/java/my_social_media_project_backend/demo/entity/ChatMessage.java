@@ -1,11 +1,20 @@
 package my_social_media_project_backend.demo.entity;
 
-import com.github.f4b6a3.ulid.UlidCreator;
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.github.f4b6a3.ulid.UlidCreator;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "chat_messages")
@@ -35,8 +44,8 @@ public class ChatMessage {
     @Column(name = "text", nullable = false)
     private String text;
 
-    @Column(name = "create_at")
-    private final LocalDateTime createAt = LocalDateTime.now();
+    @Column(name = "created_at")
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     public String getId() {
         return id;
@@ -71,7 +80,7 @@ public class ChatMessage {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
     public List<ChatAttachment> getAttachments() {

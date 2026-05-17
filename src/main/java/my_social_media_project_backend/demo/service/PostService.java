@@ -107,7 +107,7 @@ public class PostService {
 
     public List<PostWithUserIdDTO> getPostDTOsByUserId(Integer offset, Integer recordPerPage, Long userId, Long currentUserId) {
         int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<PostWithUserIdDTO> postPage = postRepository.getPostDTOByUserId(userId, currentUserId, pageable);
         attachPostAttachments(postPage.getContent());
         return postPage.getContent();
@@ -115,7 +115,7 @@ public class PostService {
 
     public List<PostWithUserDTO> getPostWithUserDTOs(Integer offset, Integer recordPerPage, Long userId) {
         int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<PostWithUserDTO> postPage = postRepository.getPostWithUserDTO(userId, pageable);
         List<PostWithUserDTO> postWithUserDTOS = (List<PostWithUserDTO>) attachPostAttachments(postPage.getContent());
         return postPage.getContent();
@@ -123,7 +123,7 @@ public class PostService {
 
     public List<Post> getPostsByUserId(Integer offset, Integer recordPerPage) {
         int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Post> postPage = postRepository.findAll(pageable);
         return postPage.getContent();
     }

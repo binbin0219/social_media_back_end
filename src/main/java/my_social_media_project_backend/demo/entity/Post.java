@@ -17,6 +17,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import my_social_media_project_backend.demo.enums.CommentStatus;
+import my_social_media_project_backend.demo.enums.PostPrivacySetting;
 import my_social_media_project_backend.demo.enums.PostType;
 
 @Entity
@@ -40,8 +42,25 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private PostType type;
 
-    @Column(name = "create_at")
-    private final LocalDateTime createAt = LocalDateTime.now();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "comment_status")
+    private CommentStatus commentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "privacy_setting")
+    private PostPrivacySetting privacySetting = PostPrivacySetting.PUBLIC;
+
+    @Column(nullable = false)
+    private Integer seq = 0;
+
+    @Column(name = "is_subscription_only", nullable = false)
+    private Integer isSubscriptionOnly = 0;
+
+    @Column(name = "is_sensitive_content", nullable = false)
+    private Integer isSensitiveContent = 0;
+
+    @Column(name = "created_at")
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
@@ -71,7 +90,7 @@ public class Post {
     public void setContent(String content) { this.content = content; }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
     public List<PostLike> getPostLikes() {
@@ -120,5 +139,44 @@ public class Post {
 
     public void setPoll(Poll poll) {
         this.poll = poll;
+    }
+
+    public int getIsSubscriptionOnly() {
+        return isSubscriptionOnly;
+    }
+    public void setIsSubscriptionOnly(int isSubscriptionOnly) {
+        this.isSubscriptionOnly = isSubscriptionOnly;
+    }
+
+    public int getIsSensitiveContent() {
+        return isSensitiveContent;
+    }
+
+    public void setIsSensitiveContent(int isSensitiveContent) {
+        this.isSensitiveContent = isSensitiveContent;
+    }
+
+    public int getSeq() {
+        return seq;
+    }
+
+    public void setSeq(int seq) {
+        this.seq = seq;
+    }
+
+    public CommentStatus getCommentStatus() {
+        return commentStatus;
+    }
+
+    public void setCommentStatus(CommentStatus commentStatus) {
+        this.commentStatus = commentStatus;
+    }
+
+    public PostPrivacySetting getPrivacySetting() {
+        return privacySetting;
+    }
+
+    public void setPrivacySetting(PostPrivacySetting privacySetting) {
+        this.privacySetting = privacySetting;
     }
 }

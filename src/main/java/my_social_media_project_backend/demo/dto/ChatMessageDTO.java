@@ -11,15 +11,15 @@ public class ChatMessageDTO {
     private String senderUsername;
     private String text;
     private List<ChatAttachment> attachments;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
-    public ChatMessageDTO(String id, Long senderId, String senderUsername, String text, List<ChatAttachment> attachments, LocalDateTime createAt) {
+    public ChatMessageDTO(String id, Long senderId, String senderUsername, String text, List<ChatAttachment> attachments, LocalDateTime createdAt) {
         this.id = id;
         this.senderId = senderId;
         this.senderUsername = senderUsername;
         this.text = text;
         this.attachments = attachments;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
     }
 
     public String getId() {
@@ -55,11 +55,11 @@ public class ChatMessageDTO {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<ChatAttachment> getAttachments() {

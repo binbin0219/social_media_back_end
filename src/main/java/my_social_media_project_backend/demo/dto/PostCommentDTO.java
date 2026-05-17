@@ -8,13 +8,13 @@ public class PostCommentDTO {
     private final Long id;
     private final String content;
     private final PostCommentUserDTO user;
-    private final LocalDateTime createAt;
+    private final LocalDateTime createdAt;
 
-    public PostCommentDTO(Long id, String content, PostCommentUserDTO user, LocalDateTime createAt) {
+    public PostCommentDTO(Long id, String content, PostCommentUserDTO user, LocalDateTime createdAt) {
         this.id = id;
         this.content = content;
         this.user = user;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -30,6 +30,6 @@ public class PostCommentDTO {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 }

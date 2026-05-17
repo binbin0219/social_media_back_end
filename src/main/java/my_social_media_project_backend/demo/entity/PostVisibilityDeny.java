@@ -2,8 +2,6 @@ package my_social_media_project_backend.demo.entity;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,8 +12,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "post_likes")
-public class PostLike {
+@Table(name = "post_visibility_denies")
+public class PostVisibilityDeny {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,18 +21,14 @@ public class PostLike {
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
-    @JsonIgnore
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "user_id", insertable = false, updatable = false)
-    private Long userId;
-
-    @Column(name = "created_at")
-    private LocalDateTime created_at = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public Long getId() {
         return id;
@@ -52,27 +46,19 @@ public class PostLike {
         this.post = post;
     }
 
+    public LocalDateTime getCreateAt() {
+        return createdAt;
+    }
+
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public LocalDateTime getCreate_at() {
-        return created_at;
-    }
-
-    public void setCreate_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 }

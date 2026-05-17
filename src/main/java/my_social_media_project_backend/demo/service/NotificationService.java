@@ -96,7 +96,7 @@ public class NotificationService {
 
     public List<NotificationDTO> getNotificationsByUserId(Long recipientId, Integer offset, Integer recordPerPage) {
         int pageNumber = offset / recordPerPage;
-        Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        Pageable pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<NotificationDTO> notificationPage = notificationRepository.findAllByRecipientId(pageable, recipientId);
         return notificationPage.getContent();
     }

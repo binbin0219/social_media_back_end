@@ -1,9 +1,17 @@
 package my_social_media_project_backend.demo.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "comments")
@@ -25,8 +33,8 @@ public class Comment {
     @JsonIgnore
     private Post post;
 
-    @Column(name = "create_at", nullable = false)
-    private final LocalDateTime createAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false)
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     public Long getId() {
         return id;
@@ -61,6 +69,6 @@ public class Comment {
     }
 
     public LocalDateTime getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 }

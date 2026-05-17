@@ -14,8 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-//    @Query("SELECT new my_social_media_project_backend.demo.dto.PostCommentDTO(c.id, c.content, c.user, c.create_at) " +
-//            "FROM Comment c WHERE c.post.id = :post_id ORDER BY c.create_at DESC")
+//    @Query("SELECT new my_social_media_project_backend.demo.dto.PostCommentDTO(c.id, c.content, c.user, c.created_at) " +
+//            "FROM Comment c WHERE c.post.id = :post_id ORDER BY c.created_at DESC")
 //    List<PostCommentDTO> findLimitedPostComments(
 //            @Param("post_id") Long postId,
 //            Pageable pageable
@@ -30,7 +30,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                 c.user.username,
                 c.user.updatedAt
             ),
-            c.createAt
+            c.createdAt
         )
         FROM Comment c
         WHERE c.post.id = :postId

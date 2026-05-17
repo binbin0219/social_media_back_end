@@ -13,9 +13,9 @@ public class PostDTO {
     private final Long commentCount;
     private final boolean isLiked;
     private List<PostAttachmentDTO> attachments;
-    private final LocalDateTime create_at;
+    private final LocalDateTime created_at;
 
-    public PostDTO(Long id, String title, String content, Long likeCount, Long commentCount, boolean isLiked, List<PostAttachmentDTO> attachments, LocalDateTime create_at) {
+    public PostDTO(Long id, String title, String content, Long likeCount, Long commentCount, boolean isLiked, List<PostAttachmentDTO> attachments, LocalDateTime created_at) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -23,7 +23,7 @@ public class PostDTO {
         this.commentCount = commentCount;
         this.isLiked = isLiked;
         this.attachments = attachments;
-        this.create_at = create_at;
+        this.created_at = created_at;
     }
 
     public Long getId() {
@@ -55,7 +55,7 @@ public class PostDTO {
     }
 
     public LocalDateTime getCreate_at() {
-        return create_at;
+        return created_at;
     }
 
     public List<PostAttachmentDTO> getAttachments() {

@@ -26,7 +26,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                 n.link,
                 n.seen,
                 n.targetId,
-                n.createAt
+                n.createdAt
             )
             FROM Notification n
             WHERE n.recipientId = :recipientId

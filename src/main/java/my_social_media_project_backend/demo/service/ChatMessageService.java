@@ -21,7 +21,7 @@ public class ChatMessageService {
 
     public List<ChatMessageDTO> getChatMessageDTOs (String chatRoomId, Integer offset, Integer recordPerPage) {
         int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createAt"));
+        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ChatMessageView> chatMessagePage = chatMessageRepository.findChatMessages(chatRoomId, pageable);
         List<ChatMessageView> reversedChatMessageViews = new ArrayList<>(chatMessagePage.getContent());
 //        Collections.reverse(reversedChatMessageViews);
