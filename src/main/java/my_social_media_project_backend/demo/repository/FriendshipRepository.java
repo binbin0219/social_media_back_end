@@ -1,8 +1,7 @@
 package my_social_media_project_backend.demo.repository;
 
-import jakarta.transaction.Transactional;
-import my_social_media_project_backend.demo.dto.FriendDTO;
-import my_social_media_project_backend.demo.entity.Friendship;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import jakarta.transaction.Transactional;
+import my_social_media_project_backend.demo.entity.Friendship;
+import my_social_media_project_backend.demo.entity.User;
 
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
@@ -21,7 +22,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
         WHERE (f.userId = :userId AND f.friendId = :friendId)
         OR (f.userId = :friendId AND f.friendId = :userId)
     """)
-    Optional<Friendship> findByUserAndFriendIds(Long userId, Long friendId);
+    Optional<Friendship> findByUserAndFriendId(Long userId, Long friendId);
 
     @Modifying
     @Transactional
@@ -33,18 +34,20 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
     void deleteFriendshipBetweenUsers(@Param("userId") Long userId, @Param("friendId") Long friendId);
 
     @Query("""
-        SELECT new my_social_media_project_backend.demo.dto.FriendDTO(
-            u.id,
-            u.username,
-            u.updatedAt
-        )
+        SELECT u
         FROM User u
         JOIN Friendship f ON
-             ((f.userId = :userId AND f.friendId = u.id) OR (f.friendId = :userId AND f.userId = u.id))
-             AND
-             f.status = ACCEPTED
-        WHERE u.id != :userId
+            ((f.userId = :userId AND f.friendId = u.id) OR (f.friendId = :userId AND f.userId = u.id))
+        WHERE (
+            :status IS NULL
+            OR f.status = :status
+        )
+        AND LOWER(u.username) LIKE LOWER(CONCAT('%', COALESCE(:username, ''), '%'))
     """)
-    Page<FriendDTO> findFriends(@Param("userId") Long userId, Pageable pageable);
-
+    Page<User> getFriends(
+            @Param("userId") Long userId,
+            @Param("username") String username,
+            @Param("status") Friendship.FriendshipStatus status,
+            Pageable pageable
+    );
 }

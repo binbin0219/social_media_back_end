@@ -1,12 +1,15 @@
 package my_social_media_project_backend.demo.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.List;
+import my_social_media_project_backend.demo.enums.CommentStatus;
+import my_social_media_project_backend.demo.enums.PostPrivacySetting;
 
 public class PostCreateDTO {
 
@@ -18,23 +21,15 @@ public class PostCreateDTO {
     )
     private String content;
 
-    @NotNull(message = "Title is required")
-    @Size(max = 255 , message = "Title cannot exceed 255 letters")
-    @Pattern(regexp = ".*\\S.*", message = "Title cannot be empty or whitespace only")
-    private String title;
+    private PostPrivacySetting privacySetting = PostPrivacySetting.PUBLIC;
+    private CommentStatus commentStatus = CommentStatus.OPEN;
+    private Boolean isSensitive = false;
+    private List<Long> selectedFriendIds = new ArrayList<>();
 
     private List<MultipartFile> attachments  = new ArrayList<>();
 
     public String getContent() {
         return content;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public void setContent(String content) {
@@ -47,5 +42,37 @@ public class PostCreateDTO {
 
     public void setAttachments(List<MultipartFile> attachments) {
         this.attachments = attachments;
+    }
+
+    public PostPrivacySetting getPrivacySetting() {
+        return privacySetting;
+    }
+
+    public void setPrivacySetting(PostPrivacySetting privacySetting) {
+        this.privacySetting = privacySetting;
+    }
+
+    public CommentStatus getCommentStatus() {
+        return commentStatus;
+    }
+
+    public void setCommentStatus(CommentStatus commentStatus) {
+        this.commentStatus = commentStatus;
+    }
+
+    public Boolean getIsSensitive() {
+        return isSensitive;
+    }
+
+    public void setIsSensitive(Boolean isSensitive) {
+        this.isSensitive = isSensitive;
+    }
+
+    public List<Long> getSelectedFriendIds() {
+        return selectedFriendIds;
+    }
+
+    public void setSelectedFriendIds(List<Long> selectedFriendIds) {
+        this.selectedFriendIds = selectedFriendIds;
     }
 }

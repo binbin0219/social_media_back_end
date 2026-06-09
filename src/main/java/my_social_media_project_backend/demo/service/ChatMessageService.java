@@ -1,15 +1,16 @@
 package my_social_media_project_backend.demo.service;
 
-import my_social_media_project_backend.demo.dto.ChatMessageDTO;
-import my_social_media_project_backend.demo.projection.ChatMessageView;
-import my_social_media_project_backend.demo.repository.ChatMessageRepository;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import my_social_media_project_backend.demo.dto.ChatMessageDTO;
+import my_social_media_project_backend.demo.projection.ChatMessageView;
+import my_social_media_project_backend.demo.repository.ChatMessageRepository;
 
 @Service
 public class ChatMessageService {
@@ -19,9 +20,9 @@ public class ChatMessageService {
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    public List<ChatMessageDTO> getChatMessageDTOs (String chatRoomId, Integer offset, Integer recordPerPage) {
-        int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
+    public List<ChatMessageDTO> getChatMessageDTOs (String chatRoomId, Integer start, Integer length) {
+        int pageNumber = start / length;
+        PageRequest pageable = PageRequest.of(pageNumber, length, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ChatMessageView> chatMessagePage = chatMessageRepository.findChatMessages(chatRoomId, pageable);
         List<ChatMessageView> reversedChatMessageViews = new ArrayList<>(chatMessagePage.getContent());
 //        Collections.reverse(reversedChatMessageViews);

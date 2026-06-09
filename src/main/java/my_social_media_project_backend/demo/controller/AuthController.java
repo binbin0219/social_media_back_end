@@ -1,29 +1,31 @@
 package my_social_media_project_backend.demo.controller;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.AllUnreadCountDTO;
-import my_social_media_project_backend.demo.dto.UserDTO;
-import my_social_media_project_backend.demo.dto.UserSignupDTO;
-import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.service.AvatarService;
-import my_social_media_project_backend.demo.service.ChatRoomService;
-import my_social_media_project_backend.demo.service.UserService;
-import my_social_media_project_backend.demo.utility.CookieUtils;
-import my_social_media_project_backend.demo.utility.JwtUtils;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.UserDetailsDTO;
+import my_social_media_project_backend.demo.dto.UserSignupDTO;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.service.ChatRoomService;
+import my_social_media_project_backend.demo.service.UserService;
+import my_social_media_project_backend.demo.utility.CookieUtils;
+import my_social_media_project_backend.demo.utility.JwtUtils;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -71,10 +73,10 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> me(@NonNull HttpServletRequest request) {
+    public ResponseEntity<UserDetailsDTO> me(@NonNull HttpServletRequest request) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDTO userDTO = userService.getCurrentUserById(userDetails.getUserId());
-        return ResponseEntity.ok(userDTO);
+        UserDetailsDTO UserDetailsDTO = userService.getCurrentUserById(userDetails.getUserId());
+        return ResponseEntity.ok(UserDetailsDTO);
     }
 
     @GetMapping("/csrf")

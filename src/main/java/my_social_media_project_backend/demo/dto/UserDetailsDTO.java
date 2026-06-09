@@ -1,33 +1,50 @@
 package my_social_media_project_backend.demo.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import my_social_media_project_backend.demo.utility.JsonUtil;
+
 import java.time.LocalDateTime;
 
-public class UserDTO <T> {
+public class UserDetailsDTO <T> {
     private Long id;
     private String country;
     private String username;
     private String firstName;
     private String lastName;
     private String description;
+    private String occupation;
+    private JsonNode phoneNumber;
+    private String region;
+    private String relationshipStatus;
     private String gender;
     private FriendshipDTO friendship;
     private Long friendCount;
+    private Long newNotificationCount;
+    private Long unreadChatMessageCount;
     private Long postCount;
     private Long likeCount;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public UserDTO(
+    public UserDetailsDTO(
             Long id,
             String country,
             String username,
             String firstName,
             String lastName,
             String description,
+            String occupation,
+            T phoneNumber,
+            String region,
+            String relationshipStatus,
             String gender,
             FriendshipDTO friendship,
             Long friendCount,
+            Long newNotificationCount,
+            Long unreadChatMessageCount,
             Long postCount,
             Long likeCount,
+            LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
         this.id = id;
@@ -36,12 +53,26 @@ public class UserDTO <T> {
         this.firstName = firstName;
         this.lastName = lastName;
         this.description = description;
+        this.occupation = occupation;
+        this.region = region;
+        this.relationshipStatus = relationshipStatus;
         this.gender = gender;
         this.friendship = friendship;
         this.friendCount = friendCount;
+        this.newNotificationCount = newNotificationCount;
+        this.unreadChatMessageCount = unreadChatMessageCount;
         this.postCount = postCount;
         this.likeCount = likeCount;
+        this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+
+        if(phoneNumber != null) {
+            this.phoneNumber = (phoneNumber instanceof JsonNode)
+                    ? (JsonNode) phoneNumber
+                    : JsonUtil.convertStringToJsonNode((String) phoneNumber);
+        } else {
+            this.phoneNumber = null;
+        }
     }
 
     public Long getId() {
@@ -64,6 +95,22 @@ public class UserDTO <T> {
         return lastName;
     }
 
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public JsonNode getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public String getRelationshipStatus() {
+        return relationshipStatus;
+    }
+
     public String getGender() {
         return gender;
     }
@@ -72,8 +119,20 @@ public class UserDTO <T> {
         return friendship;
     }
 
+    public LocalDateTime getCreateAt() {
+        return createdAt;
+    }
+
     public Long getFriendCount() {
         return friendCount;
+    }
+
+    public Long getNewNotificationCount() {
+        return newNotificationCount;
+    }
+
+    public Long getUnreadChatMessageCount() {
+        return unreadChatMessageCount;
     }
 
     public void setId(Long id) {
@@ -96,6 +155,22 @@ public class UserDTO <T> {
         this.lastName = lastName;
     }
 
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public void setPhoneNumber(JsonNode phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setRelationshipStatus(String relationshipStatus) {
+        this.relationshipStatus = relationshipStatus;
+    }
+
     public void setGender(String gender) {
         this.gender = gender;
     }
@@ -106,6 +181,18 @@ public class UserDTO <T> {
 
     public void setFriendCount(long friendCount) {
         this.friendCount = friendCount;
+    }
+
+    public void setNewNotificationCount(long newNotificationCount) {
+        this.newNotificationCount = newNotificationCount;
+    }
+
+    public void setUnreadChatMessageCount(Long unreadChatMessageCount) {
+        this.unreadChatMessageCount = unreadChatMessageCount;
+    }
+
+    public void setCreateAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getDescription() {
@@ -134,6 +221,10 @@ public class UserDTO <T> {
 
     public void setFriendCount(Long friendCount) {
         this.friendCount = friendCount;
+    }
+
+    public void setNewNotificationCount(Long newNotificationCount) {
+        this.newNotificationCount = newNotificationCount;
     }
 
     public LocalDateTime getUpdatedAt() {

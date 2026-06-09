@@ -1,7 +1,5 @@
 package my_social_media_project_backend.demo.dto;
 
-import my_social_media_project_backend.demo.service.UserService;
-
 import java.time.LocalDateTime;
 
 public class PostCommentDTO {

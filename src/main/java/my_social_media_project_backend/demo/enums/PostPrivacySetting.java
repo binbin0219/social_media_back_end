@@ -5,5 +5,5 @@ public enum PostPrivacySetting {
     FRIENDS,
     PRIVATE,
     WCV,
-    WCNY,
+    WCNV,
 }

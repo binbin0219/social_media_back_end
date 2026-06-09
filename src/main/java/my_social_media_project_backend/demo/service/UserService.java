@@ -1,24 +1,32 @@
 package my_social_media_project_backend.demo.service;
-import jakarta.persistence.EntityNotFoundException;
-import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.*;
-import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.entity.UserStatistic;
-import my_social_media_project_backend.demo.exception.emailExistedException;
-import my_social_media_project_backend.demo.exception.UserNotFoundException;
-import my_social_media_project_backend.demo.repository.UserRepository;
-import my_social_media_project_backend.demo.utility.PasswordUtil;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import jakarta.persistence.EntityNotFoundException;
+import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
+import my_social_media_project_backend.demo.dto.SearchUserDTO;
+import my_social_media_project_backend.demo.dto.UserDTO;
+import my_social_media_project_backend.demo.dto.UserDetailsDTO;
+import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
+import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
+import my_social_media_project_backend.demo.dto.UserSignupDTO;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.exception.UserNotFoundException;
+import my_social_media_project_backend.demo.exception.emailExistedException;
+import my_social_media_project_backend.demo.mapper.UserMapper;
+import my_social_media_project_backend.demo.repository.UserRepository;
+import my_social_media_project_backend.demo.utility.PasswordUtil;
 
 @Service
 public class UserService {
@@ -32,6 +40,26 @@ public class UserService {
         this.avatarService = avatarService;
         this.r2StorageService = r2StorageService;
         this.userStatisticService = userStatisticService;
+    }
+
+    public PaginatedResponseDTO<UserDTO> getUsers(int start, int length, String username) {
+
+        int page = start / length; // convert offset → page number
+
+        Pageable pageable = PageRequest.of(page, length, Sort.by("id").descending());
+        Page<User> usersPage = userRepository.findUsers(username, pageable);
+
+        List<UserDTO> users = usersPage.getContent()
+            .stream()
+            .map(user -> UserMapper.toDto(user))
+            .toList();
+
+        return new PaginatedResponseDTO<>(
+            users,
+            usersPage.getTotalElements(),
+            start,
+            length
+        );
     }
 
     public User validateUser(String email, String password) {
@@ -53,7 +81,7 @@ public class UserService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public UserDTO getUserProfileById(Long userId) {
+    public UserDetailsDTO getUserProfileById(Long userId) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.getUserProfileById(userId, userDetails.getUserId());
     }
@@ -79,7 +107,7 @@ public class UserService {
         return newUser;
     }
 
-    public UserDTO getCurrentUserById(Long id) {
+    public UserDetailsDTO getCurrentUserById(Long id) {
         return userRepository.getCurrentUserById(id).orElse(null);
     }
 
@@ -131,13 +159,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<SearchUserDTO> searchByUsername(String username, Integer offset, Integer recordPerPage) {
+    public List<SearchUserDTO> searchByUsername(String username, Integer start, Integer length) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be blank!");
         }
 
-        int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.ASC, "username"));
+        int pageNumber = start / length;
+        PageRequest pageable = PageRequest.of(pageNumber, length, Sort.by(Sort.Direction.ASC, "username"));
         return userRepository.findByUsername(username, pageable);
     }
 

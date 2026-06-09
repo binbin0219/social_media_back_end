@@ -1,25 +1,34 @@
 package my_social_media_project_backend.demo.repository;
 
-import my_social_media_project_backend.demo.dto.SearchUserDTO;
-import my_social_media_project_backend.demo.dto.UserDTO;
-import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
-import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.projection.UserSummary;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import my_social_media_project_backend.demo.dto.SearchUserDTO;
+import my_social_media_project_backend.demo.dto.UserDetailsDTO;
+import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.projection.UserSummary;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    @Query("""
+        SELECT u FROM User u
+        WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', COALESCE(:username, ''), '%'))
+    """)
+    Page<User> findUsers(@Param("username") String username, Pageable pageable);
+
     Optional<User> findByEmail(String email);
 
     @Query("""
-        SELECT new my_social_media_project_backend.demo.dto.UserDTO(
+        SELECT new my_social_media_project_backend.demo.dto.UserDetailsDTO(
             u.id,
             u.country,
             u.username,
@@ -35,6 +44,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 COALESCE(fs.userId, fs2.userId, NULL),
                 COALESCE(fs.friendId, fs2.friendId, NULL),
                 COALESCE(fs.status, fs2.status, NULL),
+                fs.userId = :currentUserId,
                 COALESCE(fs.createdAt, fs2.createdAt, NULL)
             ),
             null,
@@ -52,10 +62,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             (fs2.friend.id = u.id AND fs2.user.id = :currentUserId)
         WHERE u.id = :userId
     """)
-    UserDTO getUserProfileById(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId);
+    UserDetailsDTO getUserProfileById(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId);
 
     @Query("""
-        SELECT new my_social_media_project_backend.demo.dto.UserDTO(
+        SELECT new my_social_media_project_backend.demo.dto.UserDetailsDTO(
             u.id,
             u.country,
             u.username,
@@ -85,7 +95,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                  us.friendCount, us.newNotificationCount, u.createdAt, us.postCount,
                  us.likeCount
     """)
-    Optional<UserDTO> getCurrentUserById(@Param("userId") Long userId);
+    Optional<UserDetailsDTO> getCurrentUserById(@Param("userId") Long userId);
 
 
     @Query("SELECT u.username AS username, u.id AS id, u.updatedAt AS updatedAt FROM User u WHERE u.id IN :ids")

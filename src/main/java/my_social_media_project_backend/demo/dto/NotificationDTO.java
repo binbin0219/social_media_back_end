@@ -1,8 +1,8 @@
 package my_social_media_project_backend.demo.dto;
 
-import my_social_media_project_backend.demo.entity.Notification;
-
 import java.time.LocalDateTime;
+
+import my_social_media_project_backend.demo.enums.NotificationType;
 
 public class NotificationDTO {
     private Long id;
@@ -10,14 +10,14 @@ public class NotificationDTO {
     private Long senderId;
     private String senderUsername;
     private LocalDateTime senderUpdatedAt;
-    private Notification.Type type;
+    private NotificationType type;
     private String content;
     private String link;
     private boolean seen;
     private Long targetId;
     private LocalDateTime createdAt;
 
-    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderUsername, LocalDateTime senderUpdatedAt, Notification.Type type, String content, String link, boolean seen, Long targetId, LocalDateTime createdAt) {
+    public NotificationDTO(Long id, Long recipientId, Long senderId, String senderUsername, LocalDateTime senderUpdatedAt, NotificationType type, String content, String link, boolean seen, Long targetId, LocalDateTime createdAt) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
@@ -55,11 +55,11 @@ public class NotificationDTO {
         this.senderId = senderId;
     }
 
-    public Notification.Type getType() {
+    public NotificationType getType() {
         return type;
     }
 
-    public void setType(Notification.Type type) {
+    public void setType(NotificationType type) {
         this.type = type;
     }
 

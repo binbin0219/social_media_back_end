@@ -13,14 +13,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import my_social_media_project_backend.demo.enums.NotificationType;
 
 @Entity
 @Table(name = "notifications")
 public class Notification {
-
-    public enum Type {
-        LIKE, COMMENT, FRIEND_REQUEST
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +42,7 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private Type type;
+    private NotificationType type;
 
     @Column(name = "content")
     private String content;
@@ -99,11 +96,11 @@ public class Notification {
         this.senderId = senderId;
     }
 
-    public Type getType() {
+    public NotificationType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(NotificationType type) {
         this.type = type;
     }
 

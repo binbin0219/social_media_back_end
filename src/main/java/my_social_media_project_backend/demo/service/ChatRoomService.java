@@ -1,9 +1,20 @@
 package my_social_media_project_backend.demo.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.github.f4b6a3.ulid.UlidCreator;
+
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import my_social_media_project_backend.demo.UserSessionRegistry;
 import my_social_media_project_backend.demo.dto.AllUnreadCountDTO;
 import my_social_media_project_backend.demo.dto.ChatMessageDTO;
@@ -14,21 +25,10 @@ import my_social_media_project_backend.demo.entity.ChatMessage;
 import my_social_media_project_backend.demo.entity.ChatRoom;
 import my_social_media_project_backend.demo.entity.ChatRoomMember;
 import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.eventListener.WebSocketEventListener;
 import my_social_media_project_backend.demo.projection.UserSummary;
 import my_social_media_project_backend.demo.repository.ChatMessageRepository;
 import my_social_media_project_backend.demo.repository.ChatRoomRepository;
 import my_social_media_project_backend.demo.repository.UserRepository;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 public class ChatRoomService {
@@ -49,9 +49,9 @@ public class ChatRoomService {
         this.userSessionRegistry = userSessionRegistry;
     }
 
-    public List<ChatRoomDTO> getChatRooms(Long userId, Integer offset, Integer recordPerPage) {
-        int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
+    public List<ChatRoomDTO> getChatRooms(Long userId, Integer start, Integer length) {
+        int pageNumber = start / length;
+        PageRequest pageable = PageRequest.of(pageNumber, length, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<ChatRoomDTO> chatRoomDTOS = chatRoomRepository.findLimitedByUserId(userId, pageable).getContent();
         List<String> privateChatRoomIds = extractPrivateChatRoomIds(chatRoomDTOS);
         Map<String, List<ChatRoomMemberDTO>> chatRoomMemberDTOS = chatRoomMemberService.getAllByPrivateChatRoomIds(privateChatRoomIds);

@@ -1,21 +1,25 @@
 package my_social_media_project_backend.demo.service;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.dto.FriendDTO;
-import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
+import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.entity.Friendship;
-import my_social_media_project_backend.demo.entity.Notification;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.enums.NotificationType;
 import my_social_media_project_backend.demo.exception.CannotAcceptFriendRequestException;
 import my_social_media_project_backend.demo.exception.CannotSendFriendRequestException;
 import my_social_media_project_backend.demo.exception.CannotUnsendFriendRequestException;
+import my_social_media_project_backend.demo.mapper.FriendMapper;
 import my_social_media_project_backend.demo.repository.FriendshipRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 public class FriendshipService {
@@ -46,7 +50,7 @@ public class FriendshipService {
         notificationService.sendNotificationByIds(
                 userId,
                 friendId,
-                Notification.Type.FRIEND_REQUEST,
+                NotificationType.FRIEND_REQUEST,
                 null,
                 null,
                 null
@@ -74,7 +78,7 @@ public class FriendshipService {
             throw new CannotAcceptFriendRequestException("Friend request cannot be accepted by the requester");
         }
 
-        existingFriendship.setStatus(Friendship.Status.ACCEPTED);
+        existingFriendship.setStatus(Friendship.FriendshipStatus.ACCEPTED);
         friendshipRepository.save(existingFriendship);
         userStatisticService.incrementFriendCount(userId);
         userStatisticService.incrementFriendCount(friendId);
@@ -92,7 +96,7 @@ public class FriendshipService {
             throw new CannotAcceptFriendRequestException("Friend request cannot be rejected by the requester");
         }
 
-        existingFriendship.setStatus(Friendship.Status.REJECTED);
+        existingFriendship.setStatus(Friendship.FriendshipStatus.REJECTED);
         friendshipRepository.save(existingFriendship);
         notificationService.deleteFriendRequestNotification(userId, friendId);
     }
@@ -103,39 +107,60 @@ public class FriendshipService {
         userStatisticService.decrementFriendCount(friendId);
     }
 
-    private Friendship findByUserAndFriendIds(Long userId, Long friendId) {
-        return friendshipRepository.findByUserAndFriendIds(userId, friendId).orElse(null);
+    public PaginatedResponseDTO<FriendDTO> getFriends(Long userId, String username, Friendship.FriendshipStatus status, int start, int length) {
+
+        int page = start / length;
+        Pageable pageable = PageRequest.of(page, length);
+
+        Page<User> friendsPage =
+                friendshipRepository.getFriends(userId, username, status, pageable);
+
+        List<FriendDTO> friends = friendsPage.getContent()
+            .stream()
+            .map(friend -> FriendMapper.toDto(friend))
+            .toList();
+
+        return new PaginatedResponseDTO<>(
+            friends,
+            friendsPage.getTotalElements(),
+            start,
+            length
+        );
     }
 
-    public List<FriendDTO> getFriends(Long userId, Integer offset, Integer recordPerPage) {
-        int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FriendDTO> friendPage = friendshipRepository.findFriends(userId, pageable);
-        return friendPage.getContent();
+    public Boolean checkIsFriend(Long userId1, Long userId2) {
+        Optional<Friendship> friendship =
+                friendshipRepository.findByUserAndFriendId(userId1, userId2);
+
+        return friendship.isPresent();
+    }
+
+    private Friendship findByUserAndFriendIds(Long userId, Long friendId) {
+        return friendshipRepository.findByUserAndFriendId(userId, friendId).orElse(null);
     }
 
     private void createNewFriendRequest(Long userId, Long friendId) {
         Friendship friendship = new Friendship();
         friendship.setUserId(userId);
         friendship.setFriendId(friendId);
-        friendship.setStatus(Friendship.Status.PENDING);
+        friendship.setStatus(Friendship.FriendshipStatus.PENDING);
         friendshipRepository.save(friendship);
     }
 
     private void updateFriendRequest(Friendship friendship, Long userId, Long friendId) {
         friendship.setUserId(userId);
         friendship.setFriendId(friendId);
-        friendship.setStatus(Friendship.Status.PENDING);
+        friendship.setStatus(Friendship.FriendshipStatus.PENDING);
         friendshipRepository.save(friendship);
     }
 
     private boolean isRejectedByCurrentUser(Friendship friendship, Long userId) {
-        return friendship.getStatus() == Friendship.Status.REJECTED &&
+        return friendship.getStatus() == Friendship.FriendshipStatus.REJECTED &&
                 Objects.equals(friendship.getFriendId(), userId);
     }
 
     private boolean isRejectedByOtherUser(Friendship friendship, Long userId) {
-        return friendship.getStatus() == Friendship.Status.REJECTED &&
+        return friendship.getStatus() == Friendship.FriendshipStatus.REJECTED &&
                 Objects.equals(friendship.getUserId(), userId);
     }
 }

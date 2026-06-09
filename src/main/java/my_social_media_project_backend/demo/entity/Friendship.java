@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 @Table(name = "friendships")
 public class Friendship {
 
-    public enum Status {
+    public enum FriendshipStatus {
         PENDING, ACCEPTED, REJECTED, NO_RELATIONSHIP
     }
 
@@ -27,7 +27,7 @@ public class Friendship {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status;
+    private FriendshipStatus status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -54,11 +54,11 @@ public class Friendship {
         this.id = id;
     }
 
-    public Status getStatus() {
+    public FriendshipStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(FriendshipStatus status) {
         this.status = status;
     }
 

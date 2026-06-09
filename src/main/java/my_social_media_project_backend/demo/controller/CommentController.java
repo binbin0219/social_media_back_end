@@ -1,21 +1,25 @@
 package my_social_media_project_backend.demo.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.PostCommentDTO;
-import my_social_media_project_backend.demo.entity.Comment;
 import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.service.CommentService;
 import my_social_media_project_backend.demo.service.PostService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/comment")
@@ -31,11 +35,11 @@ public class CommentController {
     @GetMapping("/get")
     public ResponseEntity<Map<String, Object>> get(
             @RequestParam(defaultValue = "0") Long postId,
-            @RequestParam(defaultValue = "0") Integer offset,
-            @RequestParam(defaultValue = "0") Integer recordPerPage
+            @RequestParam(defaultValue = "0") Integer start,
+            @RequestParam(defaultValue = "0") Integer length
     ) {
-        Page<PostCommentDTO> postCommentPage = commentService.getPostComments(postId, offset, recordPerPage);
-        boolean isAllFetched = recordPerPage > postCommentPage.getContent().size();
+        Page<PostCommentDTO> postCommentPage = commentService.getPostComments(postId, start, length);
+        boolean isAllFetched = length > postCommentPage.getContent().size();
         Map<String, Object> response = new HashMap<>();
         response.put("isAllFetched", isAllFetched);
         response.put("comments", postCommentPage.getContent());

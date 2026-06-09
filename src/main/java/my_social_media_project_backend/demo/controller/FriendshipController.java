@@ -1,22 +1,25 @@
 package my_social_media_project_backend.demo.controller;
 
-import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.FriendDTO;
-import my_social_media_project_backend.demo.exception.CannotAcceptFriendRequestException;
-import my_social_media_project_backend.demo.exception.CannotSendFriendRequestException;
-import my_social_media_project_backend.demo.exception.CannotUnsendFriendRequestException;
-import my_social_media_project_backend.demo.service.FriendshipService;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.FriendDTO;
+import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
+import my_social_media_project_backend.demo.entity.Friendship;
+import my_social_media_project_backend.demo.exception.CannotAcceptFriendRequestException;
+import my_social_media_project_backend.demo.exception.CannotSendFriendRequestException;
+import my_social_media_project_backend.demo.exception.CannotUnsendFriendRequestException;
+import my_social_media_project_backend.demo.service.FriendshipService;
 
 @RestController
 @RequestMapping("api/friendship")
@@ -28,22 +31,24 @@ public class FriendshipController {
         this.friendshipService = friendshipService;
     }
 
-    @GetMapping("/get/friends")
-    public ResponseEntity<Object> getFriends(
-            @RequestParam Long userId,
-            @RequestParam(defaultValue = "0") Integer offset,
-            @RequestParam(defaultValue = "10") Integer recordPerPage
+    @GetMapping("/{userId}/friends")
+    public ResponseEntity<PaginatedResponseDTO<FriendDTO>> getFriends(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) Friendship.FriendshipStatus status,
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "10") int length
     ) {
-        Map<String, Object> response = new HashMap<>();
 
-        try {
-            List<FriendDTO> friends = friendshipService.getFriends(userId, offset, recordPerPage);
-            response.put("friends", friends);
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.put("error", "Something went wrong");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        return ResponseEntity.ok(
+                friendshipService.getFriends(
+                        userId,
+                        username,
+                        status,
+                        start,
+                        length
+                )
+        );
     }
 
     @GetMapping("/request/send")

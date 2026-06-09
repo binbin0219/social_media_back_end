@@ -1,16 +1,17 @@
 package my_social_media_project_backend.demo.service;
 
-import my_social_media_project_backend.demo.dto.ChatRoomMemberDTO;
-import my_social_media_project_backend.demo.repository.ChatRoomMemberRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import my_social_media_project_backend.demo.dto.ChatRoomMemberDTO;
+import my_social_media_project_backend.demo.repository.ChatRoomMemberRepository;
 
 @Service
 public class ChatRoomMemberService {
@@ -20,9 +21,9 @@ public class ChatRoomMemberService {
         this.chatRoomMemberRepository = chatRoomMemberRepository;
     }
 
-    public List<ChatRoomMemberDTO> getChatRoomMemberDTOs (String chatRoomId, Integer offset, Integer recordPerPage) {
-        int pageNumber = offset / recordPerPage;
-        PageRequest pageable = PageRequest.of(pageNumber, recordPerPage, Sort.by(Sort.Direction.DESC, "createdAt"));
+    public List<ChatRoomMemberDTO> getChatRoomMemberDTOs (String chatRoomId, Integer start, Integer length) {
+        int pageNumber = start / length;
+        PageRequest pageable = PageRequest.of(pageNumber, length, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ChatRoomMemberDTO> postPage = chatRoomMemberRepository.findByChatRoomId(chatRoomId, pageable);
         return postPage.getContent();
     }

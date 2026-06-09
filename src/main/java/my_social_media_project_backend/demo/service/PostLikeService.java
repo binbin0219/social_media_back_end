@@ -1,19 +1,20 @@
 package my_social_media_project_backend.demo.service;
 
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
-import my_social_media_project_backend.demo.dto.PostLikeDTO;
-import my_social_media_project_backend.demo.entity.Notification;
-import my_social_media_project_backend.demo.entity.Post;
-import my_social_media_project_backend.demo.entity.PostLike;
-import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.repository.PostLikeRepository;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
+import my_social_media_project_backend.demo.dto.PostLikeDTO;
+import my_social_media_project_backend.demo.entity.Post;
+import my_social_media_project_backend.demo.entity.PostLike;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.enums.NotificationType;
+import my_social_media_project_backend.demo.repository.PostLikeRepository;
 
 @Service
 public class PostLikeService {
@@ -45,8 +46,8 @@ public class PostLikeService {
             notificationService.sendNotification(
                     user,
                     post.getUser(),
-                    Notification.Type.LIKE,
-                    post.getTitle(),
+                    NotificationType.LIKE,
+                    post.getContent(),
                     null,
                     post.getId()
             );
@@ -73,7 +74,7 @@ public class PostLikeService {
                     user.getId(),
                     post.getUser().getId(),
                     post.getId(),
-                    Notification.Type.LIKE
+                    NotificationType.LIKE
             );
         }
 

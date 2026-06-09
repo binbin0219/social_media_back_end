@@ -33,9 +33,6 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "title", columnDefinition = "text")
-    private String title;
-
     @Column(name = "content", columnDefinition = "text")
     private String content;
 
@@ -71,6 +68,12 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostAttachment> attachments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostVisibilityAllow> visibilityAllows = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostVisibilityDeny> visibilityDenys = new ArrayList<>();
+
     @OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private PostStatistic postStatistic;
 
@@ -82,9 +85,6 @@ public class Post {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
@@ -178,5 +178,21 @@ public class Post {
 
     public void setPrivacySetting(PostPrivacySetting privacySetting) {
         this.privacySetting = privacySetting;
+    }
+
+    public List<PostVisibilityDeny> getVisibilityDenys() {
+        return visibilityDenys;
+    }
+
+    public void setVisibilityDenys(List<PostVisibilityDeny> visibilityDenys) {
+        this.visibilityDenys = visibilityDenys;
+    }
+
+    public List<PostVisibilityAllow> getVisibilityAllows() {
+        return visibilityAllows;
+    }
+
+    public void setVisibilityAllows(List<PostVisibilityAllow> visibilityAllows) {
+        this.visibilityAllows = visibilityAllows;
     }
 }

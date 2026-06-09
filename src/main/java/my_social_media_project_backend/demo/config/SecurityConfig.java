@@ -26,11 +26,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-//        csrfTokenRepository.setCookieCustomizer(cookie -> {
-//            cookie.sameSite("None"); // Allow cross-origin cookie
-//            cookie.secure(true);    // IMPORTANT: false for localhost (true for HTTPS)
-//        });
         http.csrf(AbstractHttpConfigurer::disable)
             .exceptionHandling(exception -> exception
                     .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -45,6 +40,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/auth/csrf").permitAll()
                     .requestMatchers("/api/auth/signup").permitAll()
                     .requestMatchers("/api/auth/email/exist").permitAll()
+                    .requestMatchers("/api/user/**").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

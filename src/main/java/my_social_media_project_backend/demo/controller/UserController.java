@@ -1,24 +1,37 @@
 package my_social_media_project_backend.demo.controller;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.activation.UnsupportedDataTypeException;
 import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.*;
+import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
+import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.dto.SearchUserDTO;
+import my_social_media_project_backend.demo.dto.UserDTO;
+import my_social_media_project_backend.demo.dto.UserDetailsDTO;
+import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
+import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.exception.ValidationException;
 import my_social_media_project_backend.demo.service.PostService;
 import my_social_media_project_backend.demo.service.UserService;
 import my_social_media_project_backend.demo.validator.UserValidator;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/user")
@@ -31,6 +44,15 @@ public class UserController {
         this.userService = userService;
         this.postService = postService;
         this.userValidator = userValidator;
+    }
+
+    @GetMapping
+    public PaginatedResponseDTO<UserDTO> getUsers(
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "10") int length,
+            @RequestParam(required = false) String username
+    ) {
+        return userService.getUsers(start, length, username);
     }
 
     @GetMapping("/user/{id}")
@@ -49,8 +71,8 @@ public class UserController {
         }
 
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDTO user = userService.getUserProfileById(userId);
-        List<PostWithUserIdDTO> posts = postService.getPostDTOsByUserId(0, 6, user.getId(), customUserDetails.getUserId());
+        UserDetailsDTO user = userService.getUserProfileById(userId);
+        List<PostDTO> posts = postService.getPostDTOsByUserId(0, 6, user.getId(), customUserDetails.getUserId());
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
         response.put("posts", posts);
@@ -116,14 +138,14 @@ public class UserController {
     @GetMapping("/search")
     public ResponseEntity<?> searchByUsername(
             @RequestParam("username") String username,
-            @RequestParam(defaultValue = "0") Integer offset,
-            @RequestParam(defaultValue = "10") Integer recordPerPage
+            @RequestParam(defaultValue = "0") Integer start,
+            @RequestParam(defaultValue = "10") Integer length
     ) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            List<SearchUserDTO> searchUserDTOS = userService.searchByUsername(username,offset, recordPerPage);
-            response.put("searchResults", searchUserDTOS);
+            List<SearchUserDTO> SearchUserDTOS = userService.searchByUsername(username,start, length);
+            response.put("searchResults", SearchUserDTOS);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             System.out.println("Failed to search user by username : " + e.getMessage());

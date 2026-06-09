@@ -1,26 +1,37 @@
 package my_social_media_project_backend.demo.controller;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import my_social_media_project_backend.demo.custom.CustomUserDetails;
-import my_social_media_project_backend.demo.dto.PostCreateDTO;
-import my_social_media_project_backend.demo.dto.PostWithUserDTO;
-import my_social_media_project_backend.demo.dto.PostWithUserIdDTO;
-import my_social_media_project_backend.demo.entity.Post;
-import my_social_media_project_backend.demo.entity.User;
-import my_social_media_project_backend.demo.service.PostService;
-import my_social_media_project_backend.demo.service.UserService;
-import org.apache.coyote.BadRequestException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import my_social_media_project_backend.demo.custom.CustomUserDetails;
+import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
+import my_social_media_project_backend.demo.dto.PostCreateDTO;
+import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.entity.Post;
+import my_social_media_project_backend.demo.entity.User;
+import my_social_media_project_backend.demo.service.PostService;
+import my_social_media_project_backend.demo.service.UserService;
 
 @RestController
 @RequestMapping("api/post")
@@ -35,49 +46,77 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PostWithUserIdDTO> createPost(@ModelAttribute @Valid PostCreateDTO postCreateDTO) {
+    public ResponseEntity<PostDTO> createPost(@ModelAttribute @Valid PostCreateDTO postCreateDTO) throws BadRequestException {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getByIdOrFails(userDetails.getUserId());
-        PostWithUserIdDTO createdPost = postService.create(postCreateDTO, user);
+        PostDTO createdPost = postService.create(postCreateDTO, user);
         return ResponseEntity.ok().body(createdPost);
     }
 
     @GetMapping("/get")
-    public ResponseEntity<List<PostWithUserDTO>> PostWithUserDTOs(
-            @RequestParam(defaultValue = "0") Integer offset,
-            @RequestParam(defaultValue = "10") Integer recordPerPage) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<PostWithUserDTO> postWithUserDTOS = postService.getPostWithUserDTOs(offset, recordPerPage, customUserDetails.getUserId());
-        return ResponseEntity.ok(postWithUserDTOS);
+    public ResponseEntity<PaginatedResponseDTO<PostDTO>> getPosts(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "createdAt,desc") String[] sort
+    ) {
+        Sort.Direction direction = Sort.Direction.fromString(sort[1]);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort[0]));
+        
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.getByIdOrFails(userDetails.getUserId());
+
+        PaginatedResponseDTO<PostDTO> paginatedResponseDTO = postService.getPosts(pageable, user.getId());
+
+        return ResponseEntity.ok(paginatedResponseDTO);
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDTO> getPostDetails(
+            @PathVariable Long postId
+    ) {
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        PostDTO postDTO =
+                postService.getPostDetails(
+                        postId,
+                        userDetails.getUserId()
+                );
+
+        return ResponseEntity.ok(postDTO);
     }
 
     @GetMapping("/get/{userId}")
-    public ResponseEntity<List<PostWithUserIdDTO>> getPostByUserId(
+    public ResponseEntity<List<PostDTO>> getPostByUserId(
             @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") Integer offset,
-            @RequestParam(defaultValue = "10") Integer recordPerPage) {
+            @RequestParam(defaultValue = "0") Integer start,
+            @RequestParam(defaultValue = "10") Integer length) {
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<PostWithUserIdDTO> postDTO = postService.getPostDTOsByUserId(offset, recordPerPage, userId, customUserDetails.getUserId());
+        List<PostDTO> postDTO = postService.getPostDTOsByUserId(start, length, userId, customUserDetails.getUserId());
         return ResponseEntity.ok(postDTO);
     }
 
     @PostMapping("/update/{postId}")
     public ResponseEntity<Object> update(
             @PathVariable Long postId,
-            @RequestBody @Valid PostCreateDTO requestBody
-    ) {
+            @ModelAttribute @Valid PostCreateDTO postCreateDTO
+    ) throws BadRequestException {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postService.getPostByIdOrFail(postId);
         if(!Objects.equals(post.getUser().getId(), userDetails.getUserId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not able to edit this post");
         }
 
-        String newTitle = requestBody.getTitle();
-        String newContent = requestBody.getContent();
-        postService.updatePost(post, newTitle, newContent);
+        User user = userService.getByIdOrFails(userDetails.getUserId());
+        PostDTO updatedPost = postService.editPost(postId, postCreateDTO, user);
 
-        Map<String, String> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("message", "Post updated successfully");
+        response.put("updatedPost", updatedPost);
         return ResponseEntity.ok().body(response);
     }
 
