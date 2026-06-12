@@ -14,35 +14,34 @@ import my_social_media_project_backend.demo.entity.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    // @Query("""
-    //     SELECT 
-    //         c,
-    //         CASE 
-    //             WHEN p.commentStatus = OPEN THEN TRUE
-    //             WHEN p.commentStatus = CLOSED THEN FALSE
-    //             WHEN 
-    //                 p.commentStatus = ONLY_FRIENDS 
-    //                 AND EXISTS (
-    //                     SELECT 1
-    //                     FROM Friendship fs
-    //                     WHERE ((fs.userId = :userId AND fs.friendId = p.user.id) OR (fs.friendId = :userId AND fs.userId = p.user.id))
-    //                     AND fs.status = ACCEPTED
-    //                 )
-    //             THEN TRUE 
-    //             ELSE FALSE
-    //         END AS canComment
-    //     FROM Comment c
-    //     JOIN Post p ON p.id = c.post.id
-    //     WHERE (
-    //         :postIds IS NULL
-    //         OR c.post.id IN :postIds
-    //     )
-    // """)
-    // Page<Comment> getComments(
-    //     @Param("postIds") List<Long> postIds,
-    //     @Param("userId") Long userId,
-    //     Pageable pageable
-    // );
+    @Query("""
+        SELECT 
+            c
+        FROM Comment c
+        WHERE (
+            :postId IS NULL
+            OR c.post.id = :postId
+        )
+        AND (
+            :commentId IS NULL
+            OR c.id = :commentId
+        )
+    """)
+    Page<Comment> getComments(
+        @Param("commentId") Long commentId,
+        @Param("postId") Long postId,
+        Pageable pageable
+    );
+
+    default Comment getCommentById(Long commentId) {
+        List<Comment> result = getComments(
+            commentId,
+            null,
+            Pageable.unpaged()
+        ).getContent();
+
+        return result.isEmpty() ? null : result.get(0);
+    }
 
     @Query("""
         SELECT new my_social_media_project_backend.demo.dto.PostCommentDTO(
@@ -51,12 +50,25 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             new my_social_media_project_backend.demo.dto.PostCommentUserDTO(
                 c.user.id,
                 c.user.username,
+                new my_social_media_project_backend.demo.dto.FriendshipDTO(
+                    fs.userId,
+                    fs.friendId,
+                    fs.status,
+                    CASE
+                        WHEN fs.userId = :userId THEN true
+                        ELSE false
+                    END,
+                    fs.createdAt
+                ),
                 c.user.updatedAt
             ),
             c.createdAt
         )
         FROM Comment c
+        LEFT JOIN Friendship fs ON
+            :userId IS NOT NULL 
+            AND ((fs.userId = :userId AND fs.friendId = c.user.id) OR (fs.friendId = :userId AND fs.userId = c.user.id))
         WHERE c.post.id = :postId
     """)
-    Page<PostCommentDTO> findPostComments(@Param("postId") Long postId, Pageable pageable);
+    Page<PostCommentDTO> findPostComments(@Param("postId") Long postId, @Param("userId") Long userId, Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package my_social_media_project_backend.demo.service;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -9,15 +10,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.dto.PostCommentDTO;
 import my_social_media_project_backend.demo.dto.PostCommentUserDTO;
 import my_social_media_project_backend.demo.entity.Comment;
-import my_social_media_project_backend.demo.entity.Notification;
+import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.enums.CommentStatus;
 import my_social_media_project_backend.demo.enums.NotificationType;
 import my_social_media_project_backend.demo.exception.CommentNotAllowedException;
+import my_social_media_project_backend.demo.mapper.FriendshipMapper;
+import my_social_media_project_backend.demo.mapper.PostCommentMapper;
 import my_social_media_project_backend.demo.repository.CommentRepository;
 
 @Service
@@ -85,7 +89,8 @@ public class CommentService {
             );
         }
 
-        PostCommentDTO dto = convertToPostCommentDTO(comment);
+        comment = commentRepository.getCommentById(comment.getId());
+        PostCommentDTO dto = PostCommentMapper.toDto(comment, null);
 
         messagingTemplate.convertAndSend(
                 "/topic/" + post.getId() + "/postComments",
@@ -95,10 +100,24 @@ public class CommentService {
         return dto;
     }
 
-    public Page<PostCommentDTO> getPostComments(Long postId, Integer start, Integer length) {
+    public PaginatedResponseDTO<PostCommentDTO> getPostComments(Long postId, Long currentUserId, Integer start, Integer length) {
         int pageNumber = start / length;
         Pageable pageable = PageRequest.of(pageNumber, length, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return commentRepository.findPostComments(postId, pageable);
+        Page<Comment> commentsPage = commentRepository.getComments(null, postId, pageable);
+        List<PostCommentDTO> comments = commentsPage.getContent()
+            .stream()
+            .map(c -> {
+                Friendship friendship = friendshipService.findByUserAndFriendId(currentUserId, c.getUser().getId());
+                return PostCommentMapper.toDto(c, FriendshipMapper.toDto(friendship, currentUserId));
+            })
+            .toList();
+
+        return new PaginatedResponseDTO<>(
+                comments,
+                commentsPage.getTotalElements(),
+                (int) pageable.getOffset(),
+                pageable.getPageSize()
+        );
     }
 
     public PostCommentDTO convertToPostCommentDTO(Comment comment) {
@@ -108,6 +127,7 @@ public class CommentService {
                 new PostCommentUserDTO(
                         comment.getUser().getId(),
                         comment.getUser().getUsername(),
+                        null,
                         comment.getUser().getUpdatedAt()
                 ),
                 comment.getCreateAt()

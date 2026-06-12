@@ -38,7 +38,7 @@ public class FriendshipService {
     public void sendFriendRequestByIds(Long userId, Long friendId)
             throws CannotSendFriendRequestException
     {
-        Friendship existingFriendship = findByUserAndFriendIds(userId, friendId);
+        Friendship existingFriendship = findByUserAndFriendId(userId, friendId);
         if(existingFriendship == null) {
             createNewFriendRequest(userId, friendId);
         } else if(isRejectedByCurrentUser(existingFriendship, userId)) {
@@ -58,7 +58,7 @@ public class FriendshipService {
     }
 
     public void unsendFriendRequest(Long userId, Long friendId) throws CannotUnsendFriendRequestException {
-        Friendship existingFriendship = findByUserAndFriendIds(userId, friendId);
+        Friendship existingFriendship = findByUserAndFriendId(userId, friendId);
         if(existingFriendship != null) {
             if(!Objects.equals(existingFriendship.getUserId(), userId)) {
                 throw new CannotUnsendFriendRequestException("Only requester is able to unsend friend request");
@@ -69,7 +69,7 @@ public class FriendshipService {
     }
 
     public void acceptFriendRequestByIds(Long userId, Long friendId) throws CannotAcceptFriendRequestException {
-        Friendship existingFriendship = findByUserAndFriendIds(userId, friendId);
+        Friendship existingFriendship = findByUserAndFriendId(userId, friendId);
         if(existingFriendship == null) {
             throw new EntityNotFoundException("Friendship not found");
         }
@@ -86,7 +86,7 @@ public class FriendshipService {
     }
 
     public void rejectFriendRequestByIds(Long userId, Long friendId) throws CannotAcceptFriendRequestException {
-        Friendship existingFriendship = findByUserAndFriendIds(userId, friendId);
+        Friendship existingFriendship = findByUserAndFriendId(userId, friendId);
 
         if(existingFriendship == null) {
             throw new EntityNotFoundException("Friendship not found");
@@ -135,7 +135,7 @@ public class FriendshipService {
         return friendship.isPresent();
     }
 
-    private Friendship findByUserAndFriendIds(Long userId, Long friendId) {
+    public Friendship findByUserAndFriendId(Long userId, Long friendId) {
         return friendshipRepository.findByUserAndFriendId(userId, friendId).orElse(null);
     }
 
