@@ -14,6 +14,7 @@ public class PostDTO {
     private final List<PostCommentDTO> comments = new ArrayList<>();
     private final Long likeCount;
     private final Long commentCount;
+    private final Long shareCount;
     private final boolean isLiked;
     private List<PostAttachmentDTO> attachments;
     private final PostPrivacySetting privacySetting;
@@ -22,7 +23,8 @@ public class PostDTO {
     private List<FriendDTO> visibilityFriendList = new ArrayList<>();
     private final boolean canComment;
     private final FriendshipDTO friendship;
-    private final LocalDateTime created_at;
+    private final PostDTO sharedPost;
+    private final LocalDateTime createdAt;
 
     public PostDTO(
         Long id,
@@ -30,6 +32,7 @@ public class PostDTO {
         String content,
         Long likeCount,
         Long commentCount,
+        Long shareCount,
         boolean isLiked,
         List<PostAttachmentDTO> attachments,
         PostPrivacySetting privacySetting,
@@ -38,13 +41,15 @@ public class PostDTO {
         List<FriendDTO> visibilityFriendList,
         boolean canComment,
         FriendshipDTO friendship,
-        LocalDateTime created_at
+        PostDTO sharedPost,
+        LocalDateTime createdAt
     ) {
         this.id = id;
         this.user = user;
         this.content = content;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.shareCount = shareCount;
         this.isLiked = isLiked;
         this.attachments = attachments;
         this.privacySetting = privacySetting;
@@ -53,7 +58,8 @@ public class PostDTO {
         this.visibilityFriendList = visibilityFriendList;
         this.canComment = canComment;
         this.friendship = friendship;
-        this.created_at = created_at;
+        this.sharedPost = sharedPost;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -78,10 +84,6 @@ public class PostDTO {
 
     public boolean isLiked() {
         return isLiked;
-    }
-
-    public LocalDateTime getCreate_at() {
-        return created_at;
     }
 
     public List<PostAttachmentDTO> getAttachments() {
@@ -122,5 +124,17 @@ public class PostDTO {
 
     public FriendshipDTO getFriendship() {
         return friendship;
+    }
+
+    public PostDTO getSharedPost() {
+        return sharedPost;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getShareCount() {
+        return shareCount;
     }
 }

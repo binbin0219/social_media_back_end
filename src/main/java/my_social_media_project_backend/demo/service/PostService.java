@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.dto.PostAttachmentDTO;
 import my_social_media_project_backend.demo.dto.PostCreateDTO;
 import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.dto.request.SharePostRequest;
 import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.PostAttachment;
@@ -34,12 +36,14 @@ import my_social_media_project_backend.demo.enums.PostPrivacySetting;
 import my_social_media_project_backend.demo.exception.MaximumPostAttachmentException;
 import my_social_media_project_backend.demo.exception.PostNotFoundException;
 import my_social_media_project_backend.demo.mapper.FriendMapper;
+import my_social_media_project_backend.demo.mapper.PostAttachmentMapper;
 import my_social_media_project_backend.demo.mapper.PostMapper;
 import my_social_media_project_backend.demo.repository.PostAttachmentRepository;
 import my_social_media_project_backend.demo.repository.PostRepository;
 import my_social_media_project_backend.demo.repository.PostVisibilityAllowRepository;
 import my_social_media_project_backend.demo.repository.PostVisibilityDenyRepository;
 import my_social_media_project_backend.demo.repository.UserRepository;
+import my_social_media_project_backend.demo.specification.PostSpecification;
 import my_social_media_project_backend.demo.utility.ContentTypeUtils;
 import my_social_media_project_backend.demo.utility.StoragePathUtils;
 
@@ -55,6 +59,8 @@ public class PostService {
     private final PostVisibilityAllowRepository postVisibilityAllowRepository;
     private final PostVisibilityDenyRepository postVisibilityDenyRepository;
     private final FriendshipService friendshipService;
+    private final PostLikeService postLikeService;
+    private final PostMapper postMapper;
 
     public PostService(
             PostRepository postRepository,
@@ -65,7 +71,9 @@ public class PostService {
             UserRepository userRepository,
             PostVisibilityAllowRepository postVisibilityAllowRepository,
             PostVisibilityDenyRepository postVisibilityDenyRepository,
-            FriendshipService friendshipService
+            FriendshipService friendshipService,
+            PostLikeService postLikeService,
+            PostMapper postMapper
     ) {
         this.postRepository = postRepository;
         this.postStatisticsService = postStatisticsService;
@@ -76,59 +84,57 @@ public class PostService {
         this.postVisibilityAllowRepository = postVisibilityAllowRepository;
         this.postVisibilityDenyRepository = postVisibilityDenyRepository;
         this.friendshipService = friendshipService;
+        this.postLikeService = postLikeService;
+        this.postMapper = postMapper;
     }
 
     public PaginatedResponseDTO<PostDTO> getPosts(Pageable pageable, Long userId) {
 
-        Page<PostDTO> postPage = postRepository.getPosts(userId, null, pageable)
-            .map(row -> {
-                    Post post = (Post) row[0];
-                    Friendship friendship = (Friendship) row[1];
-                    boolean isLiked = (boolean) row[2];
+        // Page<PostDTO> postPage = postRepository.getPosts(userId, null, pageable)
+        //     .map(row -> {
+        //             Post post = (Post) row[0];
+        //             Friendship friendship = (Friendship) row[1];
+        //             boolean isLiked = (boolean) row[2];
 
-                    return PostMapper.toDto(
-                        post, 
-                        resolveVisibility(post), 
-                        checkCanComment(userId, post),
-                        isLiked,
-                        friendship,
-                        userId,
-                        r2StorageService
-                    );
-                }
-            );
+        //             return PostMapper.toDto(
+        //                 post, 
+        //                 resolveVisibility(post), 
+        //                 checkCanComment(userId, post),
+        //                 isLiked,
+        //                 friendship,
+        //                 userId,
+        //                 r2StorageService
+        //             );
+        //         }
+        //     );
+
+        Specification<Post> spec = PostSpecification.getPosts(userId, null);
+        Page<Post> postPage = postRepository.findAll(spec, pageable);
+
+        List<PostDTO> postDTOs = postPage.getContent()
+            .stream()
+            .map(post -> buildPostDto(post, userId))
+            .toList();
 
         return new PaginatedResponseDTO<>(
-                postPage.getContent(),
-                postPage.getTotalElements(),
-                (int) pageable.getOffset(),
-                pageable.getPageSize()
+            postDTOs,
+            postPage.getTotalElements(),
+            (int) pageable.getOffset(),
+            pageable.getPageSize()
         );
     }
 
     public PostDTO getPostDetails(Long postId, Long currentUserId) {
 
-        Object[] row = postRepository.getPostById(currentUserId, postId);
+        Specification<Post> spec = PostSpecification.getPosts(currentUserId, postId);
+        Post post = postRepository.findOne(spec)
+            .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        Post post = (Post) row[0];
-        Friendship friendship = (Friendship) row[1];
-        boolean isLiked = (boolean) row[2];
-
-        final List<FriendDTO> vilibilityList = resolveVisibility(post);
-
-        return PostMapper.toDto(
-                post,
-                vilibilityList,
-                checkCanComment(currentUserId, post),
-                isLiked,
-                friendship,
-                currentUserId,
-                r2StorageService
-        );
+        return buildPostDto(post, currentUserId);
     }
 
     @Transactional
-    public PostDTO create(PostCreateDTO postCreateDTO, User user) throws BadRequestException {
+    public Long create(PostCreateDTO postCreateDTO, User user) throws BadRequestException {
 
         if (postCreateDTO.getAttachments().size() > 10) {
             throw new MaximumPostAttachmentException(
@@ -177,24 +183,28 @@ public class PostService {
         final Post savedPost = postRepository.save(post);
 
         // Handle privacy logic
-        handlePostPrivacySetting(savedPost, postCreateDTO);
+        handlePostPrivacySetting(savedPost, postCreateDTO.getPrivacySetting(), postCreateDTO.getSelectedFriendIds());
 
         postStatisticsService.create(savedPost);
 
         userStatisticService.incrementPostCount(user.getId());
 
-        return getPostDetails(post.getId(), user.getId());
+        return post.getId();
     }
 
     @Transactional
     public PostDTO editPost(Long postId, PostCreateDTO postCreateDTO, User user) throws BadRequestException {
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new BadRequestException("Post not found"));
 
         // Optional: ownership check
         if (!post.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to edit this post");
+            throw new BadRequestException("You are not allowed to edit this post");
+        }
+
+        if(post.getSharedPost() == null && postCreateDTO.getContent().isEmpty()) {
+            throw new BadRequestException("Content cannot be empty");
         }
 
         // ========================
@@ -244,12 +254,73 @@ public class PostService {
         // Save updated post
         Post updatedPost = postRepository.save(post);
 
-        handlePostPrivacySetting(updatedPost, postCreateDTO);
+        handlePostPrivacySetting(updatedPost, postCreateDTO.getPrivacySetting(), postCreateDTO.getSelectedFriendIds());
 
         // ========================
         // Build response DTO
         // ========================
         return getPostDetails(post.getId(), user.getId());
+    }
+
+    @Transactional
+    public Long sharePost(SharePostRequest dto, User user) throws BadRequestException {
+
+        // 1. Resolve the original post — throws PostNotFoundException if absent
+        Post originalPost = getPostByIdOrFail(dto.getOriginalPostId());
+
+        // 2. Guard: don't allow sharing a post that is itself a repost of something else
+        if (originalPost.getSharedPost() != null) {
+            originalPost = originalPost.getSharedPost();
+        }
+
+        // prevent author from sharing their own post
+        if (originalPost.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("You cannot share your own post");
+        }
+
+        // 3. Build the repost entity
+        final Post repost = new Post();
+        repost.setUser(user);
+        repost.setSharedPost(originalPost);
+        repost.setContent(dto.getContent());          // nullable caption
+        repost.setPrivacySetting(dto.getPrivacySetting());
+        repost.setCommentStatus(dto.getCommentStatus());
+        repost.setIsSensitiveContent(Boolean.TRUE.equals(dto.getIsSensitive()) ? 1 : 0);
+
+        final Post savedRepost = postRepository.save(repost);
+
+        // Increment share count of the original post
+        postStatisticsService.incrementShareCount(originalPost.getId());
+
+        // 4. Handle WCV / WCNV allow-/deny-lists
+        handlePostPrivacySetting(savedRepost, dto.getPrivacySetting(), dto.getSelectedFriendIds());
+
+        // 5. Create statistics row and update the sharer's post count
+        postStatisticsService.create(savedRepost);
+        userStatisticService.incrementPostCount(user.getId());
+
+        return savedRepost.getId();
+    }
+
+    @Transactional
+    public void delete(Long postId) throws EntityNotFoundException, BadRequestException {
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post post = getPostByIdOrFail(postId);
+
+        if (!Objects.equals(post.getUser().getId(), userDetails.getUserId())) {
+            throw new BadRequestException("Failed to delete post: user not author of the post");
+        }
+
+        if (post.getSharedPost() != null) {
+            postStatisticsService.decrementShareCount(post.getSharedPost().getId());
+        }
+
+        PostStatistic postStatistic = postStatisticsService.getByPostId(postId);
+        r2StorageService.deleteFolder(StoragePathUtils.getPostDirLinkOnR2(postId));
+        postRepository.deleteById(postId);
+        userStatisticService.decrementPostCount(post.getUser().getId());
+        userStatisticService.decrementLikeCount(post.getUser().getId(), postStatistic.getLikeCount());
     }
 
     public Post getPostByIdOrFail(Long postId) {
@@ -307,36 +378,11 @@ public class PostService {
         return postDTOS;
     }
 
-    public void updatePost(Post post, String newContent) {
-        post.setContent(newContent);
-        postRepository.save(post);
-    }
-
-    public void delete(Long postId) throws EntityNotFoundException, BadRequestException {
-
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long postUserId = getPostUserId(postId);
-        if (postUserId == null) {
-            throw new EntityNotFoundException("Failed to delete post: post not found");
-        }
-
-        if (!Objects.equals(postUserId, userDetails.getUserId())) {
-            throw new BadRequestException("Failed to delete post: user not author of the post");
-        }
-
-        PostStatistic postStatistic = postStatisticsService.getByPostId(postId);
-        r2StorageService.deleteFolder(StoragePathUtils.getPostDirLinkOnR2(postId));
-        postRepository.deleteById(postId);
-        userStatisticService.decrementPostCount(postUserId);
-        userStatisticService.decrementLikeCount(postUserId, postStatistic.getLikeCount());
-    }
-
     private void handlePostPrivacySetting(
             Post post,
-            PostCreateDTO postCreateDTO
+            PostPrivacySetting privacySetting,
+            List<Long> selectedFriendIds
     ) throws BadRequestException {
-
-        PostPrivacySetting privacySetting = postCreateDTO.getPrivacySetting();
 
         postVisibilityAllowRepository.deleteByPostId(post.getId());
         postVisibilityDenyRepository.deleteByPostId(post.getId());
@@ -345,8 +391,6 @@ public class PostService {
         if (privacySetting != PostPrivacySetting.WCV && privacySetting != PostPrivacySetting.WCNV) {
             return;
         }
-
-        List<Long> selectedFriendIds = postCreateDTO.getSelectedFriendIds();
 
         // Remove duplicates
         List<Long> uniqueFriendIds
@@ -398,7 +442,7 @@ public class PostService {
         }
     }
 
-    private boolean checkCanComment(Long userId, Post post) {
+    public boolean checkCanComment(Long userId, Post post) {
         CommentStatus commentStatus = post.getCommentStatus();
 
         if (commentStatus == CommentStatus.CLOSED) {
@@ -412,7 +456,7 @@ public class PostService {
         return true;
     }
 
-    private static List<FriendDTO> resolveVisibility(Post post) {
+    public List<FriendDTO> resolveVisibility(Post post) {
 
         if (post.getPrivacySetting() == PostPrivacySetting.WCV) {
 
@@ -431,5 +475,54 @@ public class PostService {
         }
 
         return List.of();
+    }
+
+    private PostDTO buildPostDto(Post post, Long userId) {
+
+        boolean isLiked = postLikeService.isPostLikedByUser(post.getId(), userId);
+
+        Friendship friendship = friendshipService.findByUserAndFriendId(
+            post.getUser().getId(),
+            userId
+        );
+
+        List<FriendDTO> visibility = resolveVisibility(post);
+
+        boolean canComment = checkCanComment(userId, post);
+
+        Long likeCount = post.getPostStatistic() != null
+            ? post.getPostStatistic().getLikeCount()
+            : 0L;
+
+        Long commentCount = post.getPostStatistic() != null
+            ? post.getPostStatistic().getCommentCount()
+            : 0L;
+
+        Long shareCount = post.getPostStatistic() != null
+            ? post.getPostStatistic().getShareCount()
+            : 0L;
+
+        List<PostAttachmentDTO> attachments = post.getAttachments()
+            .stream()
+            .map(att -> PostAttachmentMapper.toDto(post, att, r2StorageService))
+            .toList();
+
+        PostDTO sharedPostDTO = null;
+        if (post.getSharedPost() != null) {
+            sharedPostDTO = buildPostDto(post.getSharedPost(), userId);
+        }
+
+        return postMapper.toDto(
+            post,
+            visibility,
+            canComment,
+            isLiked,
+            friendship,
+            likeCount,
+            commentCount,
+            shareCount,
+            attachments,
+            sharedPostDTO
+        );
     }
 }

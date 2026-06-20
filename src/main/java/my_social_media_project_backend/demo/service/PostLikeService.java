@@ -90,6 +90,11 @@ public class PostLikeService {
                 .collect(Collectors.toList());
     }
 
+    public boolean isPostLikedByUser(Long postId, Long userId) {
+        if (userId == null || postId == null) return false;
+        return postLikeRepository.existsByPostIdAndUserId(postId, userId);
+    }
+
     private boolean isLikeByAuthor(Long postAuthorId, Long userId) {
         return Objects.equals(postAuthorId, userId);
     }

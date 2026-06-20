@@ -5,20 +5,13 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import my_social_media_project_backend.demo.enums.CommentStatus;
 import my_social_media_project_backend.demo.enums.PostPrivacySetting;
 
 public class PostCreateDTO {
 
-    @NotNull(message = "Content is required")
     @Size(max = 2500 , message = "Content cannot exceed 2500 letters")
-    @Pattern(
-            regexp = "(?s).*\\S.*",
-            message = "Content cannot be empty or whitespace only"
-    )
     private String content;
 
     private PostPrivacySetting privacySetting = PostPrivacySetting.PUBLIC;

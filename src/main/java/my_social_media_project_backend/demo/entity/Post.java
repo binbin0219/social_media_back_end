@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +33,10 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shared_post_id")
+    private Post sharedPost;
 
     @Column(name = "content", columnDefinition = "text")
     private String content;
@@ -79,6 +84,9 @@ public class Post {
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Poll poll;
+
+    @OneToMany(mappedBy = "sharedPost")
+    private List<Post> reposts = new ArrayList<>();
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -194,5 +202,21 @@ public class Post {
 
     public void setVisibilityAllows(List<PostVisibilityAllow> visibilityAllows) {
         this.visibilityAllows = visibilityAllows;
+    }
+
+    public Post getSharedPost() {
+        return sharedPost;
+    }
+
+    public void setSharedPost(Post sharedPost) {
+        this.sharedPost = sharedPost;
+    }
+
+    public List<Post> getReposts() {
+        return reposts;
+    }
+
+    public void setReposts(List<Post> reposts) {
+        this.reposts = reposts;
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.dto.PostCreateDTO;
 import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.dto.request.SharePostRequest;
 import my_social_media_project_backend.demo.entity.Post;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.service.PostService;
@@ -49,7 +51,9 @@ public class PostController {
     public ResponseEntity<PostDTO> createPost(@ModelAttribute @Valid PostCreateDTO postCreateDTO) throws BadRequestException {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getByIdOrFails(userDetails.getUserId());
-        PostDTO createdPost = postService.create(postCreateDTO, user);
+        Long createdPostId = postService.create(postCreateDTO, user);
+        System.out.println("createdPostId: " + createdPostId);
+        PostDTO createdPost = postService.getPostDetails(createdPostId, user.getId());
         return ResponseEntity.ok().body(createdPost);
     }
 
@@ -118,6 +122,25 @@ public class PostController {
         response.put("message", "Post updated successfully");
         response.put("updatedPost", updatedPost);
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/share")
+    public ResponseEntity<PostDTO> sharePost(
+            @RequestBody @Valid SharePostRequest sharePostDTO
+    ) throws BadRequestException {
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        User user = userService.getByIdOrFails(userDetails.getUserId());
+
+        Long sharedPostId = postService.sharePost(sharePostDTO, user);
+        PostDTO sharedPost = postService.getPostDetails(sharedPostId, user.getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(sharedPost);
     }
 
     @DeleteMapping("/delete")
