@@ -52,7 +52,6 @@ public class PostController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getByIdOrFails(userDetails.getUserId());
         Long createdPostId = postService.create(postCreateDTO, user);
-        System.out.println("createdPostId: " + createdPostId);
         PostDTO createdPost = postService.getPostDetails(createdPostId, user.getId());
         return ResponseEntity.ok().body(createdPost);
     }
