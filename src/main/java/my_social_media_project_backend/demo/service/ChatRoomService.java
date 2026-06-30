@@ -137,7 +137,6 @@ public class ChatRoomService {
         room.setLastMessageAt(chatMessage.getCreateAt());
         chatRoomRepository.save(room);
 
-        ChatRoom currentRoom = room;
         return new ChatRoomDTO(
                 room.getId(),
                 room.getName(),
@@ -145,13 +144,7 @@ public class ChatRoomService {
                 room.getMessagePreview(),
                 room.getLastMessageAt(),
                 0L,
-                room.getMembers().stream().map(member -> new ChatRoomMemberDTO(
-                        member.getId(),
-                        currentRoom.getId(),
-                        member.getUser().getId(),
-                        member.getUser().getUsername(),
-                        member.getUser().getUpdatedAt()
-                )).toList(),
+                room.getMembers().stream().map(member -> chatRoomMemberService.buildDto(member, peerId)).toList(),
                 room.getMessages().stream().map(message -> new ChatMessageDTO(
                         message.getId(),
                         meId,

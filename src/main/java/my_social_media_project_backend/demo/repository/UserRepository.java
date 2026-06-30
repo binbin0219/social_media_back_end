@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import my_social_media_project_backend.demo.dto.SearchUserDTO;
 import my_social_media_project_backend.demo.dto.UserDetailsDTO;
-import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.projection.UserSummary;
 
@@ -112,21 +111,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """)
     List<SearchUserDTO> findByUsername(@Param("username") String username, Pageable pageable);
 
-    @Query(value = """
-        SELECT u.id, u.username, u.updated_at
-        FROM users u
+    @Query("""
+        SELECT u
+        FROM User u
         WHERE u.id != :userId
-          AND u.id NOT IN (
-              SELECT CASE
-                  WHEN f.user_id = :userId THEN f.friend_id
-                  ELSE f.user_id
-              END
-              FROM friendships f
-              WHERE (f.user_id = :userId OR f.friend_id = :userId)
+          AND NOT EXISTS (
+              SELECT f.id
+              FROM Friendship f
+              WHERE (f.user.id = :userId AND f.friend.id = u.id)
+                 OR (f.friend.id = :userId AND f.user.id = u.id)
           )
-        ORDER BY RANDOM()
-        LIMIT :limit;
-    """, nativeQuery = true)
-    List<UserRecommendationDTO> findRecommendedUsers(@Param("userId") Long userId, @Param("limit") int limit);
+        ORDER BY FUNCTION('RANDOM')
+    """)
+    List<User> findRecommendedUsers(@Param("userId") Long userId, Pageable pageable);
 
 }

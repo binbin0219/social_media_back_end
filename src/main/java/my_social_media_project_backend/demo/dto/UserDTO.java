@@ -1,6 +1,7 @@
 package my_social_media_project_backend.demo.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserDTO <T> {
     private Long id;
@@ -14,6 +15,7 @@ public class UserDTO <T> {
     private Long friendCount;
     private Long postCount;
     private Long likeCount;
+    private List<StoryDTO> stories;
     private LocalDateTime updatedAt;
 
     public UserDTO(
@@ -28,6 +30,7 @@ public class UserDTO <T> {
             Long friendCount,
             Long postCount,
             Long likeCount,
+            List<StoryDTO> stories,
             LocalDateTime updatedAt
     ) {
         this.id = id;
@@ -41,6 +44,7 @@ public class UserDTO <T> {
         this.friendCount = friendCount;
         this.postCount = postCount;
         this.likeCount = likeCount;
+        this.stories = stories;
         this.updatedAt = updatedAt;
     }
 
@@ -142,5 +146,13 @@ public class UserDTO <T> {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<StoryDTO> getStories() {
+        return stories;
+    }
+
+    public void setStories(List<StoryDTO> stories) {
+        this.stories = stories;
     }
 }

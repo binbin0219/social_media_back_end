@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +22,8 @@ import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.dto.PostAttachmentDTO;
 import my_social_media_project_backend.demo.dto.PostCreateDTO;
 import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.dto.StoryDTO;
+import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.dto.request.SharePostRequest;
 import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.Post;
@@ -43,7 +44,6 @@ import my_social_media_project_backend.demo.repository.PostRepository;
 import my_social_media_project_backend.demo.repository.PostVisibilityAllowRepository;
 import my_social_media_project_backend.demo.repository.PostVisibilityDenyRepository;
 import my_social_media_project_backend.demo.repository.UserRepository;
-import my_social_media_project_backend.demo.specification.PostSpecification;
 import my_social_media_project_backend.demo.utility.ContentTypeUtils;
 import my_social_media_project_backend.demo.utility.StoragePathUtils;
 
@@ -61,6 +61,7 @@ public class PostService {
     private final FriendshipService friendshipService;
     private final PostLikeService postLikeService;
     private final PostMapper postMapper;
+    private final UserService userService;
 
     public PostService(
             PostRepository postRepository,
@@ -73,7 +74,8 @@ public class PostService {
             PostVisibilityDenyRepository postVisibilityDenyRepository,
             FriendshipService friendshipService,
             PostLikeService postLikeService,
-            PostMapper postMapper
+            PostMapper postMapper,
+            UserService userService
     ) {
         this.postRepository = postRepository;
         this.postStatisticsService = postStatisticsService;
@@ -86,35 +88,23 @@ public class PostService {
         this.friendshipService = friendshipService;
         this.postLikeService = postLikeService;
         this.postMapper = postMapper;
+        this.userService = userService;
     }
 
     public PaginatedResponseDTO<PostDTO> getPosts(Pageable pageable, Long userId) {
 
-        // Page<PostDTO> postPage = postRepository.getPosts(userId, null, pageable)
-        //     .map(row -> {
-        //             Post post = (Post) row[0];
-        //             Friendship friendship = (Friendship) row[1];
-        //             boolean isLiked = (boolean) row[2];
+        Page<PostDTO> postPage = postRepository.getPosts(userId, null, pageable)
+            .map(post -> buildPostDto(post, userId));
 
-        //             return PostMapper.toDto(
-        //                 post, 
-        //                 resolveVisibility(post), 
-        //                 checkCanComment(userId, post),
-        //                 isLiked,
-        //                 friendship,
-        //                 userId,
-        //                 r2StorageService
-        //             );
-        //         }
-        //     );
+        List<PostDTO> postDTOs = postPage.getContent();
 
-        Specification<Post> spec = PostSpecification.getPosts(userId, null);
-        Page<Post> postPage = postRepository.findAll(spec, pageable);
+        // Specification<Post> spec = PostSpecification.getPosts(userId, null);
+        // Page<Post> postPage = postRepository.findAll(spec, pageable);
 
-        List<PostDTO> postDTOs = postPage.getContent()
-            .stream()
-            .map(post -> buildPostDto(post, userId))
-            .toList();
+        // List<PostDTO> postDTOs = postPage.getContent()
+        //     .stream()
+        //     .map(post -> buildPostDto(post, userId))
+        //     .toList();
 
         return new PaginatedResponseDTO<>(
             postDTOs,
@@ -126,8 +116,7 @@ public class PostService {
 
     public PostDTO getPostDetails(Long postId, Long currentUserId) {
 
-        Specification<Post> spec = PostSpecification.getPosts(currentUserId, postId);
-        Post post = postRepository.findOne(spec)
+        Post post = postRepository.getPostById(currentUserId, postId)
             .orElseThrow(() -> new RuntimeException("Post not found"));
 
         return buildPostDto(post, currentUserId);
@@ -456,13 +445,16 @@ public class PostService {
         return true;
     }
 
-    public List<FriendDTO> resolveVisibility(Post post) {
+    public List<FriendDTO> resolveVisibility(Post post, Long currentUserId) {
 
         if (post.getPrivacySetting() == PostPrivacySetting.WCV) {
 
             return post.getVisibilityAllows()
                     .stream()
-                    .map(v -> FriendMapper.toDto(v.getUser()))
+                    .map(v -> {
+                        List<StoryDTO> stories = userService.buildUserDto(v.getUser(), currentUserId).getStories();
+                        return FriendMapper.toDto(v.getUser(), stories);
+                    })
                     .toList();
         }
 
@@ -470,25 +462,27 @@ public class PostService {
 
             return post.getVisibilityDenys()
                     .stream()
-                    .map(v -> FriendMapper.toDto(v.getUser()))
+                    .map(v -> {
+                        List<StoryDTO> stories = userService.buildUserDto(v.getUser(), currentUserId).getStories();
+                        return FriendMapper.toDto(v.getUser(), stories);
+                    })
                     .toList();
         }
 
         return List.of();
     }
 
-    private PostDTO buildPostDto(Post post, Long userId) {
+    private PostDTO buildPostDto(Post post, Long currentUserId) {
 
-        boolean isLiked = postLikeService.isPostLikedByUser(post.getId(), userId);
+        boolean isLiked = postLikeService.isPostLikedByUser(post.getId(), currentUserId);
 
-        Friendship friendship = friendshipService.findByUserAndFriendId(
-            post.getUser().getId(),
-            userId
+        Friendship friendship = friendshipService.findByUserAndFriendId(post.getUser().getId(),
+            currentUserId
         );
 
-        List<FriendDTO> visibility = resolveVisibility(post);
+        List<FriendDTO> visibility = resolveVisibility(post, currentUserId);
 
-        boolean canComment = checkCanComment(userId, post);
+        boolean canComment = checkCanComment(currentUserId, post);
 
         Long likeCount = post.getPostStatistic() != null
             ? post.getPostStatistic().getLikeCount()
@@ -509,8 +503,10 @@ public class PostService {
 
         PostDTO sharedPostDTO = null;
         if (post.getSharedPost() != null) {
-            sharedPostDTO = buildPostDto(post.getSharedPost(), userId);
+            sharedPostDTO = buildPostDto(post.getSharedPost(), currentUserId);
         }
+
+        UserDTO userDTO = userService.buildUserDto(post.getUser(), currentUserId);
 
         return postMapper.toDto(
             post,
@@ -522,7 +518,8 @@ public class PostService {
             commentCount,
             shareCount,
             attachments,
-            sharedPostDTO
+            sharedPostDTO,
+            userDTO
         );
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.dto.PostCommentDTO;
 import my_social_media_project_backend.demo.dto.PostCommentUserDTO;
+import my_social_media_project_backend.demo.dto.StoryDTO;
 import my_social_media_project_backend.demo.entity.Comment;
 import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.Post;
@@ -22,31 +23,32 @@ import my_social_media_project_backend.demo.enums.NotificationType;
 import my_social_media_project_backend.demo.exception.CommentNotAllowedException;
 import my_social_media_project_backend.demo.mapper.FriendshipMapper;
 import my_social_media_project_backend.demo.mapper.PostCommentMapper;
+import my_social_media_project_backend.demo.mapper.PostCommentUserMapper;
 import my_social_media_project_backend.demo.repository.CommentRepository;
 
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final UserService userService;
     private final PostStatisticsService postStatisticsService;
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
     private final FriendshipService friendshipService;
+    private final StoryService storyService;
 
     public CommentService(
         CommentRepository commentRepository, 
-        UserService userService, 
         PostStatisticsService postStatisticsService, 
         NotificationService notificationService, 
         SimpMessagingTemplate messagingTemplate,
-        FriendshipService friendshipService
+        FriendshipService friendshipService,
+        StoryService storyService
     ) {
         this.commentRepository = commentRepository;
-        this.userService = userService;
         this.postStatisticsService = postStatisticsService;
         this.notificationService = notificationService;
         this.messagingTemplate = messagingTemplate;
         this.friendshipService = friendshipService;
+        this.storyService = storyService;
     }
 
     public PostCommentDTO create(Post post, User user, String content) {
@@ -90,7 +92,7 @@ public class CommentService {
         }
 
         comment = commentRepository.getCommentById(comment.getId());
-        PostCommentDTO dto = PostCommentMapper.toDto(comment, null);
+        PostCommentDTO dto = buildPostCommentDto(comment, user.getId());
 
         messagingTemplate.convertAndSend(
                 "/topic/" + post.getId() + "/postComments",
@@ -106,10 +108,7 @@ public class CommentService {
         Page<Comment> commentsPage = commentRepository.getComments(null, postId, pageable);
         List<PostCommentDTO> comments = commentsPage.getContent()
             .stream()
-            .map(c -> {
-                Friendship friendship = friendshipService.findByUserAndFriendId(currentUserId, c.getUser().getId());
-                return PostCommentMapper.toDto(c, FriendshipMapper.toDto(friendship, currentUserId));
-            })
+            .map(c -> buildPostCommentDto(c, currentUserId))
             .toList();
 
         return new PaginatedResponseDTO<>(
@@ -121,17 +120,22 @@ public class CommentService {
     }
 
     public PostCommentDTO convertToPostCommentDTO(Comment comment) {
-        return new PostCommentDTO(
-                comment.getId(),
-                comment.getContent(),
-                new PostCommentUserDTO(
-                        comment.getUser().getId(),
-                        comment.getUser().getUsername(),
-                        null,
-                        comment.getUser().getUpdatedAt()
-                ),
-                comment.getCreateAt()
+        return buildPostCommentDto(comment, null);
+    }
+
+    public PostCommentDTO buildPostCommentDto(Comment comment, Long currentUserId) {
+        Friendship friendship = currentUserId != null
+                ? friendshipService.findByUserAndFriendId(currentUserId, comment.getUser().getId())
+                : null;
+
+        List<StoryDTO> stories = storyService.getActiveStoryDTOsByUserId(comment.getUser().getId(), currentUserId);
+        PostCommentUserDTO commentUserDTO = PostCommentUserMapper.toDto(
+                comment.getUser(),
+                FriendshipMapper.toDto(friendship, currentUserId),
+                stories
         );
+
+        return PostCommentMapper.toDto(comment, commentUserDTO);
     }
 
     private boolean isPostAuthorCommentOnOwnPost(Long authorId, Long commenterId) {

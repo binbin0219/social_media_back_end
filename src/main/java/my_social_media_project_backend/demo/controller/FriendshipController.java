@@ -36,6 +36,7 @@ public class FriendshipController {
             @PathVariable Long userId,
             @RequestParam(required = false) String username,
             @RequestParam(required = false) Friendship.FriendshipStatus status,
+            @RequestParam(required = false) Boolean withStories,
             @RequestParam(defaultValue = "0") int start,
             @RequestParam(defaultValue = "10") int length
     ) {
@@ -45,6 +46,7 @@ public class FriendshipController {
                         userId,
                         username,
                         status,
+                        withStories,
                         start,
                         length
                 )

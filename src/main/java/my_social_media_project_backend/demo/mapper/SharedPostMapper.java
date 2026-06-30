@@ -63,6 +63,7 @@ public class SharedPostMapper {
                 null,
                 null,
                 null,
+                null,
                 null
             ),
             sharedPost.getContent(),

@@ -60,6 +60,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                     END,
                     fs.createdAt
                 ),
+                null,
                 c.user.updatedAt
             ),
             c.createdAt

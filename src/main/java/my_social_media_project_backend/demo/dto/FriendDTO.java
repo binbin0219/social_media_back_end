@@ -1,15 +1,18 @@
 package my_social_media_project_backend.demo.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class FriendDTO {
     private long id;
     private String username;
+    private List<StoryDTO> stories;
     private LocalDateTime updatedAt;
 
-    public FriendDTO(long id, String username, LocalDateTime updatedAt) {
+    public FriendDTO(long id, String username, List<StoryDTO> stories, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
+        this.stories = stories;
         this.updatedAt = updatedAt;
     }
 
@@ -23,6 +26,14 @@ public class FriendDTO {
 
     public String getUsername() {
         return username;
+    }
+
+    public List<StoryDTO> getStories() {
+        return stories;
+    }
+
+    public void setStories(List<StoryDTO> stories) {
+        this.stories = stories;
     }
 
     public void setUsername(String username) {

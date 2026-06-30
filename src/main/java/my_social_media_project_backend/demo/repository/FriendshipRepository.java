@@ -43,11 +43,21 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             OR f.status = :status
         )
         AND LOWER(u.username) LIKE LOWER(CONCAT('%', COALESCE(:username, ''), '%'))
+        AND (
+            :withStories IS NULL
+            OR :withStories = false
+            OR EXISTS (
+                SELECT 1 FROM Story s
+                WHERE s.user.id = u.id
+                AND (s.expiresAt IS NULL OR s.expiresAt > CURRENT_TIMESTAMP)
+            )
+        )
     """)
     Page<User> getFriends(
             @Param("userId") Long userId,
             @Param("username") String username,
             @Param("status") Friendship.FriendshipStatus status,
+            @Param("withStories") Boolean withStories,
             Pageable pageable
     );
 }

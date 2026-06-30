@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import my_social_media_project_backend.demo.dto.FriendDTO;
 import my_social_media_project_backend.demo.dto.PostAttachmentDTO;
 import my_social_media_project_backend.demo.dto.PostDTO;
+import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.Post;
 
@@ -23,20 +24,14 @@ public class PostMapper {
         Long commentCount,
         Long shareCount,
         List<PostAttachmentDTO> attachments,
-        PostDTO sharedPostDTO
+        PostDTO sharedPostDTO,
+        UserDTO userDTO
     ) {
 
         return new PostDTO(
             post.getId(),
 
-            UserMapper.toDto(
-                post.getUser(),
-                null,
-                null,
-                null,
-                null,
-                null
-            ),
+            userDTO,
 
             post.getContent(),
 

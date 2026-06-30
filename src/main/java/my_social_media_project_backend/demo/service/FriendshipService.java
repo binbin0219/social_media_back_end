@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.dto.FriendDTO;
 import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
+import my_social_media_project_backend.demo.dto.StoryDTO;
 import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.enums.NotificationType;
@@ -23,16 +24,21 @@ import my_social_media_project_backend.demo.repository.FriendshipRepository;
 
 @Service
 public class FriendshipService {
-    private final UserService userService;
     private final FriendshipRepository friendshipRepository;
     private final NotificationService notificationService;
     private final UserStatisticService userStatisticService;
+    private final StoryService storyService;
 
-    public FriendshipService(UserService userService, FriendshipRepository friendshipRepository, NotificationService notificationService, UserStatisticService userStatisticService) {
-        this.userService = userService;
+    public FriendshipService(
+            FriendshipRepository friendshipRepository,
+            NotificationService notificationService,
+            UserStatisticService userStatisticService,
+            StoryService storyService
+    ) {
         this.friendshipRepository = friendshipRepository;
         this.notificationService = notificationService;
         this.userStatisticService = userStatisticService;
+        this.storyService = storyService;
     }
 
     public void sendFriendRequestByIds(Long userId, Long friendId)
@@ -107,17 +113,20 @@ public class FriendshipService {
         userStatisticService.decrementFriendCount(friendId);
     }
 
-    public PaginatedResponseDTO<FriendDTO> getFriends(Long userId, String username, Friendship.FriendshipStatus status, int start, int length) {
+    public PaginatedResponseDTO<FriendDTO> getFriends(Long userId, String username, Friendship.FriendshipStatus status, Boolean withStories, int start, int length) {
 
         int page = start / length;
         Pageable pageable = PageRequest.of(page, length);
 
         Page<User> friendsPage =
-                friendshipRepository.getFriends(userId, username, status, pageable);
+                friendshipRepository.getFriends(userId, username, status, withStories, pageable);
 
         List<FriendDTO> friends = friendsPage.getContent()
             .stream()
-            .map(friend -> FriendMapper.toDto(friend))
+            .map(friend -> {
+                List<StoryDTO> stories = storyService.getActiveStoryDTOsByUserId(friend.getId(), userId);
+                return FriendMapper.toDto(friend, stories);
+            })
             .toList();
 
         return new PaginatedResponseDTO<>(

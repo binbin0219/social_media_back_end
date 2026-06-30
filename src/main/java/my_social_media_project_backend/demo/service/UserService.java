@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +17,17 @@ import jakarta.persistence.EntityNotFoundException;
 import my_social_media_project_backend.demo.custom.CustomUserDetails;
 import my_social_media_project_backend.demo.dto.PaginatedResponseDTO;
 import my_social_media_project_backend.demo.dto.SearchUserDTO;
+import my_social_media_project_backend.demo.dto.StoryDTO;
 import my_social_media_project_backend.demo.dto.UserDTO;
 import my_social_media_project_backend.demo.dto.UserDetailsDTO;
 import my_social_media_project_backend.demo.dto.UserProfileUpdateDTO;
 import my_social_media_project_backend.demo.dto.UserRecommendationDTO;
 import my_social_media_project_backend.demo.dto.UserSignupDTO;
+import my_social_media_project_backend.demo.entity.Friendship;
 import my_social_media_project_backend.demo.entity.User;
 import my_social_media_project_backend.demo.exception.UserNotFoundException;
 import my_social_media_project_backend.demo.exception.emailExistedException;
+import my_social_media_project_backend.demo.mapper.FriendshipMapper;
 import my_social_media_project_backend.demo.mapper.UserMapper;
 import my_social_media_project_backend.demo.repository.UserRepository;
 import my_social_media_project_backend.demo.utility.PasswordUtil;
@@ -34,12 +38,23 @@ public class UserService {
     private final AvatarService avatarService;
     private final R2StorageService r2StorageService;
     private final UserStatisticService userStatisticService;
+    private final FriendshipService friendshipService;
+    private final StoryService storyService;
 
-    public UserService(UserRepository userRepository, AvatarService avatarService, R2StorageService r2StorageService, UserStatisticService userStatisticService) {
+    public UserService(
+            UserRepository userRepository,
+            AvatarService avatarService,
+            R2StorageService r2StorageService,
+            UserStatisticService userStatisticService,
+            FriendshipService friendshipService,
+            StoryService storyService
+    ) {
         this.userRepository = userRepository;
         this.avatarService = avatarService;
         this.r2StorageService = r2StorageService;
         this.userStatisticService = userStatisticService;
+        this.friendshipService = friendshipService;
+        this.storyService = storyService;
     }
 
     public PaginatedResponseDTO<UserDTO> getUsers(int start, int length, String username) {
@@ -48,10 +63,11 @@ public class UserService {
 
         Pageable pageable = PageRequest.of(page, length, Sort.by("id").descending());
         Page<User> usersPage = userRepository.findUsers(username, pageable);
+        Long currentUserId = getCurrentUserId();
 
         List<UserDTO> users = usersPage.getContent()
             .stream()
-            .map(user -> UserMapper.toDto(user))
+            .map(user -> buildUserDto(user, currentUserId))
             .toList();
 
         return new PaginatedResponseDTO<>(
@@ -169,7 +185,41 @@ public class UserService {
         return userRepository.findByUsername(username, pageable);
     }
 
-    public List<UserRecommendationDTO> getRecommendedUsers(Long userId, int limit) {
-        return userRepository.findRecommendedUsers(userId, limit);
+    public List<UserRecommendationDTO> getRecommendedUsers(Long currentUserId, int limit) {
+        return userRepository.findRecommendedUsers(currentUserId, PageRequest.of(0, limit))
+            .stream()
+            .map(user -> buildUserRecommendationDto(user, currentUserId))
+            .toList();
+    }
+
+    public UserRecommendationDTO buildUserRecommendationDto(User user, Long currentUserId) {
+        List<StoryDTO> storyDTOs = storyService.getActiveStoryDTOsByUserId(user.getId(), currentUserId);
+        Friendship friendship = friendshipService.findByUserAndFriendId(user.getId(), currentUserId);
+
+        return new UserRecommendationDTO(
+            user.getId(),
+            user.getUsername(),
+            FriendshipMapper.toDto(friendship, currentUserId),
+            storyDTOs,
+            user.getUpdatedAt()
+        );
+    }
+
+    public UserDTO buildUserDto(User user, Long currentUserId) {
+        List<StoryDTO> storyDTOs = storyService.getActiveStoryDTOsByUserId(user.getId(), currentUserId);
+
+        Friendship friendship = friendshipService.findByUserAndFriendId(user.getId(), currentUserId);
+
+        return UserMapper.toDto(user, friendship, storyDTOs);
+    }
+
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            return null;
+        }
+
+        return userDetails.getUserId();
     }
 }
