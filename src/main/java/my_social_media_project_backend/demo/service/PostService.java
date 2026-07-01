@@ -91,9 +91,9 @@ public class PostService {
         this.userService = userService;
     }
 
-    public PaginatedResponseDTO<PostDTO> getPosts(Pageable pageable, Long userId) {
+    public PaginatedResponseDTO<PostDTO> getPosts(Pageable pageable, Long userId, Long authorId) {
 
-        Page<PostDTO> postPage = postRepository.getPosts(userId, null, pageable)
+        Page<PostDTO> postPage = postRepository.getPosts(userId, null, authorId, pageable)
             .map(post -> buildPostDto(post, userId));
 
         List<PostDTO> postDTOs = postPage.getContent();
@@ -326,11 +326,12 @@ public class PostService {
                 .orElseThrow(() -> new EntityNotFoundException("Post or User not found"));
     }
 
-    public List<PostDTO> getPostDTOsByUserId(Integer start, Integer length, Long userId, Long currentUserId) {
+    public List<PostDTO> getPostDTOsByUserId(Integer start, Integer length, Long authorId, Long currentUserId) {
         int pageNumber = start / length;
         PageRequest pageable = PageRequest.of(pageNumber, length, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PostDTO> postPage = postRepository.getPostDTOByUserId(userId, currentUserId, pageable);
-        attachPostAttachments(postPage.getContent());
+        Page<PostDTO> postPage = postRepository.getPosts(currentUserId, null, authorId, pageable)
+            .map(post -> buildPostDto(post, currentUserId));
+
         return postPage.getContent();
     }
 

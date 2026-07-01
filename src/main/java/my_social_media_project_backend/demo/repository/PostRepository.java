@@ -34,41 +34,46 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         AND
         (
-            :userId IS NULL
+            :authorId IS NULL
+            OR p.user.id = :authorId
+        )
+        AND
+        (
+            :currentUserId IS NULL
             OR p.privacySetting != WCV
-            OR p.user.id = :userId
+            OR p.user.id = :currentUserId
             OR EXISTS (
                 SELECT 1 FROM PostVisibilityAllow pva
-                WHERE pva.post = p AND pva.user.id = :userId
+                WHERE pva.post = p AND pva.user.id = :currentUserId
             )
         )
         AND
         (
-            :userId IS NULL
+            :currentUserId IS NULL
             OR p.privacySetting != WCNV
-            OR p.user.id = :userId
+            OR p.user.id = :currentUserId
             OR NOT EXISTS (
                 SELECT 1 FROM PostVisibilityDeny pvd
-                WHERE pvd.post = p AND pvd.user.id = :userId
+                WHERE pvd.post = p AND pvd.user.id = :currentUserId
             )
         )
         AND
         (
-            :userId IS NULL
+            :currentUserId IS NULL
             OR p.privacySetting != PRIVATE
-            OR p.user.id = :userId
+            OR p.user.id = :currentUserId
         )
         AND
         (
-            :userId IS NULL
+            :currentUserId IS NULL
             OR p.privacySetting != FRIENDS
-            OR p.user.id = :userId
+            OR p.user.id = :currentUserId
             OR EXISTS (
                 SELECT 1 FROM Friendship fs1
                 WHERE (
-                    (fs1.userId = :userId AND fs1.friendId = p.user.id)
+                    (fs1.userId = :currentUserId AND fs1.friendId = p.user.id)
                     OR
-                    (fs1.friendId = :userId AND fs1.userId = p.user.id)
+                    (fs1.friendId = :currentUserId AND fs1.userId = p.user.id)
                 )
                 AND fs1.status = ACCEPTED
             )
@@ -79,41 +84,41 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             OR
             (
                 (
-                    :userId IS NULL
+                    :currentUserId IS NULL
                     OR sp.privacySetting != WCV
-                    OR sp.user.id = :userId
+                    OR sp.user.id = :currentUserId
                     OR EXISTS (
                         SELECT 1 FROM PostVisibilityAllow pva2
-                        WHERE pva2.post = sp AND pva2.user.id = :userId
+                        WHERE pva2.post = sp AND pva2.user.id = :currentUserId
                     )
                 )
                 AND
                 (
-                    :userId IS NULL
+                    :currentUserId IS NULL
                     OR sp.privacySetting != WCNV
-                    OR sp.user.id = :userId
+                    OR sp.user.id = :currentUserId
                     OR NOT EXISTS (
                         SELECT 1 FROM PostVisibilityDeny pvd2
-                        WHERE pvd2.post = sp AND pvd2.user.id = :userId
+                        WHERE pvd2.post = sp AND pvd2.user.id = :currentUserId
                     )
                 )
                 AND
                 (
-                    :userId IS NULL
+                    :currentUserId IS NULL
                     OR sp.privacySetting != PRIVATE
-                    OR sp.user.id = :userId
+                    OR sp.user.id = :currentUserId
                 )
                 AND
                 (
-                    :userId IS NULL
+                    :currentUserId IS NULL
                     OR sp.privacySetting != FRIENDS
-                    OR sp.user.id = :userId
+                    OR sp.user.id = :currentUserId
                     OR EXISTS (
                         SELECT 1 FROM Friendship fs2
                         WHERE (
-                            (fs2.userId = :userId AND fs2.friendId = sp.user.id)
+                            (fs2.userId = :currentUserId AND fs2.friendId = sp.user.id)
                             OR
-                            (fs2.friendId = :userId AND fs2.userId = sp.user.id)
+                            (fs2.friendId = :currentUserId AND fs2.userId = sp.user.id)
                         )
                         AND fs2.status = ACCEPTED
                     )
@@ -122,8 +127,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         """)
     Page<Post> getPosts(
-        @Param("userId") Long userId,
+        @Param("currentUserId") Long currentUserId,
         @Param("postId") Long postId,
+        @Param("authorId") Long authorId,
         Pageable pageable
     );
 
@@ -131,6 +137,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         List<Post> result = getPosts(
                 userId,
                 postId,
+                null,
                 Pageable.unpaged()
         ).getContent();
 
@@ -178,7 +185,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         LEFT JOIN PostStatistic ps ON p.id = ps.post.id
         LEFT JOIN PostLike pl ON p.id = pl.post.id AND pl.user.id = :currentUserId
         WHERE p.user.id = :userId
-        GROUP BY p.id, p.content, p.createdAt, ps.likeCount, ps.commentCount
+        GROUP BY
+            p.id,
+            p.user.id,
+            p.user.country,
+            p.user.username,
+            p.user.firstName,
+            p.user.lastName,
+            p.user.description,
+            p.user.gender,
+            p.user.updatedAt,
+            p.content,
+            ps.likeCount,
+            ps.commentCount,
+            ps.shareCount,
+            p.privacySetting,
+            p.commentStatus,
+            p.isSensitiveContent,
+            p.createdAt
     """)
     Page<PostDTO> getPostDTOByUserId(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId, Pageable pageable);
 

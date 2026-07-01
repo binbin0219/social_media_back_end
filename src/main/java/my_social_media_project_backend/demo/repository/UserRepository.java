@@ -43,7 +43,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 COALESCE(fs.userId, fs2.userId, NULL),
                 COALESCE(fs.friendId, fs2.friendId, NULL),
                 COALESCE(fs.status, fs2.status, NULL),
-                fs.userId = :currentUserId,
+                CASE
+                    WHEN COALESCE(fs.userId, fs2.userId) = :currentUserId THEN true
+                    ELSE false
+                END,
                 COALESCE(fs.createdAt, fs2.createdAt, NULL)
             ),
             null,

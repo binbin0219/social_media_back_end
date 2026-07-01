@@ -60,7 +60,8 @@ public class PostController {
     public ResponseEntity<PaginatedResponseDTO<PostDTO>> getPosts(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(defaultValue = "createdAt,desc") String[] sort
+            @RequestParam(defaultValue = "createdAt,desc") String[] sort,
+            @RequestParam(required = false) Long authorId
     ) {
         Sort.Direction direction = Sort.Direction.fromString(sort[1]);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort[0]));
@@ -68,7 +69,7 @@ public class PostController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getByIdOrFails(userDetails.getUserId());
 
-        PaginatedResponseDTO<PostDTO> paginatedResponseDTO = postService.getPosts(pageable, user.getId());
+        PaginatedResponseDTO<PostDTO> paginatedResponseDTO = postService.getPosts(pageable, user.getId(), authorId);
 
         return ResponseEntity.ok(paginatedResponseDTO);
     }
